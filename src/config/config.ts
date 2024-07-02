@@ -13,7 +13,7 @@ export default () => ({
       dbName: process.env.DB_NAME,
     },
   },
-  rabbitMq: {
+  rabbitMQ: {
     prod: {
       host: process.env.RABBITMQ_HOST,
       port: 5672,
