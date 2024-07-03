@@ -1,10 +1,27 @@
-import { Controller, Get, Logger, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  Logger,
+  Post,
+  UseFilters,
+} from '@nestjs/common';
+import { AlgoException, AlgoExceptionCode } from './algo.exception';
+import { AlgoExceptionFilter } from './algo.exceptionFilter';
 
 @Controller('/api/algo')
+@UseFilters(AlgoExceptionFilter)
 export class AlgoController {
   private readonly logger = new Logger(AlgoController.name);
+
   @Get('list')
-  getAlgorithms() {}
+  getAlgorithms() {
+    throw new AlgoException(
+      AlgoExceptionCode.ALGO_DOES_NOT_EXISTS,
+      'Algorithm does not exists',
+      HttpStatus.OK,
+    );
+  }
 
   @Post('register')
   registerAlgorithm() {}
