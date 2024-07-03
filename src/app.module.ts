@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import config from './config/config';
 import envValidation from './config/config.validation';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 const validationSchema = envValidation();
 const logger = new Logger('App Module');
@@ -30,6 +31,12 @@ const logger = new Logger('App Module');
       },
       inject: [ConfigService],
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60 * 1000, // duration of counter. counter resets after 1 minute
+        limit: 10, // maximum number of requests a source is allowed to make within the specific ttl. further requests are blocked if limit is reached
+      },
+    ]),
     AlgoModule,
     UserModule,
   ],

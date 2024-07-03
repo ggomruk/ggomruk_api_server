@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import helment from 'helmet';
 
 async function bootstrap() {
   const appContext = await NestFactory.createApplicationContext(AppModule);
@@ -15,6 +16,10 @@ async function bootstrap() {
       : `amqp://${rabbitMQConfig.host}:${rabbitMQConfig.port}`;
 
   const app = await NestFactory.create(AppModule);
+
+  // Security
+  app.use(helment());
+  app.enableCors();
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
