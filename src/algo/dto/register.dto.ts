@@ -7,7 +7,7 @@ import {
   Min,
 } from 'class-validator';
 import { IsDecimalWithStep } from '../customValidator/IsDecimalWithStep';
-import { BB, MACD, RSI, RV, SMA, SO } from '../strategies';
+import { BB, MACD, RSI, RV, SMA, SO } from '../customValidator/validatorTypes';
 
 export class RegisterAlgoDto {
   @IsNotEmpty()
