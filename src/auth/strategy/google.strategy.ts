@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-google-oauth20';
+
 @Injectable()
-export class LocalStrategyService extends PassportStrategy(Strategy) {
+export class GoogleStrategyService extends PassportStrategy(
+  Strategy,
+  'google',
+) {
   constructor() {
     super();
   }
