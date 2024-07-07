@@ -3,7 +3,7 @@ import { AlgoController } from './algo.controller';
 import { AlgoService } from './algo.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { StrategySchema } from './schema/strategy.schema';
-import { ResultSchema } from './schema/result. schema';
+import { ResultSchema } from './schema/result.schema';
 import { MarketSchema } from './schema/market.schema';
 
 @Module({
