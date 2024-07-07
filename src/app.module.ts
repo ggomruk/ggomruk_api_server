@@ -1,6 +1,7 @@
 import { Logger, Module } from '@nestjs/common';
 import { AlgoModule } from './algo/algo.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import config from './config/config';
 import envValidation from './config/config.validation';
@@ -37,8 +38,9 @@ const logger = new Logger('App Module');
         limit: 10, // maximum number of requests a source is allowed to make within the specific ttl. further requests are blocked if limit is reached
       },
     ]),
-    AlgoModule,
     UserModule,
+    AuthModule,
+    AlgoModule,
   ],
 })
 export class AppModule {}
