@@ -10,7 +10,8 @@ import {
 } from '@nestjs/common';
 import { AlgoException, AlgoExceptionCode } from './algo.exception';
 import { AlgoExceptionFilter } from './algo.exceptionFilter';
-import { RegisterAlgoDto } from './dto/register.dto';
+import { BacktestDto } from './dto/backtest.dto';
+import { AlgoValidationPipe } from './algo.pipe';
 
 @Controller('/api/algo')
 @UseFilters(AlgoExceptionFilter)
@@ -33,7 +34,9 @@ export class AlgoController {
   }
 
   @Post('register')
-  registerAlgorithm(@Body() registerAlgoDto: RegisterAlgoDto) {
+  registerAlgorithm(
+    @Body(new AlgoValidationPipe()) registerAlgoDto: BacktestDto,
+  ) {
     console.log(registerAlgoDto);
     return { ok: 1 };
   }
