@@ -1,15 +1,8 @@
-import {
-  IsDecimal,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 import { IsDecimalWithStep } from '../customValidator/IsDecimalWithStep';
 import { BB, MACD, RSI, RV, SMA, SO } from '../customValidator/validatorTypes';
 
-export class RegisterAlgoDto {
+export class BacktestDto {
   @IsNotEmpty()
   @IsString()
   symbol: string;
@@ -21,14 +14,20 @@ export class RegisterAlgoDto {
   startDate: number;
 
   @IsNotEmpty()
-  @IsDecimal()
-  @Min(0.00001)
-  @Max(2)
-  @IsDecimalWithStep()
-  commision: number;
+  @IsNumber()
+  @Min(1)
+  @Max(360)
+  endDate: number;
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumber()
+  @Min(0.00001)
+  @Max(2.0)
+  @IsDecimalWithStep()
+  commission: number;
+
+  @IsNotEmpty()
+  @IsNumber()
   usdt: string;
 
   @IsNotEmpty()
@@ -42,7 +41,7 @@ export class RegisterAlgoDto {
   interval: string;
 
   @IsNotEmpty()
-  startegeis: Strategy[];
+  startegies: Strategy[];
 }
 
 export class Strategy {
