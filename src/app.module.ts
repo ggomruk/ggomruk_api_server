@@ -26,7 +26,7 @@ const logger = new Logger('App Module');
         const uri =
           process.env.NODE_ENV === 'prod'
             ? `mongodb://${dbConfig.username}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}`
-            : `mongodb://localhost:27017`;
+            : `mongodb://localhost:${dbConfig.port}/${dbConfig.dbName}`;
         logger.debug('MongoDB URI: ' + uri);
         return { uri };
       },
