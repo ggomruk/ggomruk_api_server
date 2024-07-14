@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
 
-interface IUser extends Document {
+interface IUser {
   username: string;
   email: string;
   password: string;
@@ -10,7 +9,7 @@ interface IUser extends Document {
 }
 
 @Schema({ timestamps: true })
-export class User extends Document {
+export class User {
   @Prop({ required: true, type: String })
   username: string;
 

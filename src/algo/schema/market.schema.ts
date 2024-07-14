@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
 
-interface IMarket extends Document {
+interface IMarket {
   date: Date;
+  symbol: string;
   open: number;
   high: number;
   low: number;
@@ -11,9 +11,12 @@ interface IMarket extends Document {
 }
 
 @Schema({ timestamps: true })
-export class Market extends Document {
+export class Market {
   @Prop({ required: true, type: Date })
   date: Date;
+
+  @Prop({ required: true, type: String })
+  symbol: string;
 
   @Prop({ type: Number, required: true })
   open: number;

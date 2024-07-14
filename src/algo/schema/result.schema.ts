@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
 
-interface IResult extends Document {
+interface IResult {
   strategyReturn: number;
   buyHoldReturn: number;
   cagr: number;
@@ -13,7 +12,7 @@ interface IResult extends Document {
 }
 
 @Schema({ timestamps: true })
-export class ResultSchema extends Document {
+export class Result {
   @Prop({ required: true, type: Number })
   strategyReturn: number;
 
@@ -39,4 +38,4 @@ export class ResultSchema extends Document {
   testEnd: Date;
 }
 
-export const Result = SchemaFactory.createForClass<IResult>(ResultSchema);
+export const ResultSchema = SchemaFactory.createForClass<IResult>(Result);

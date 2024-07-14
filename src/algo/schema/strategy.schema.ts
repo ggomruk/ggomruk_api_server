@@ -1,14 +1,14 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { StrategyParams } from '../strategy.type';
 
-interface IStrategyDetail extends Document {
+interface IStrategyDetail {
   strategyName: string;
   params: StrategyParams;
 }
 
 // Document types
-interface IStrategy extends Document {
+interface IStrategy {
   symbol: string;
   startDate: number;
   commission: number;
@@ -19,7 +19,7 @@ interface IStrategy extends Document {
 }
 
 @Schema()
-export class StrategyDetail extends Document {
+export class StrategyDetail {
   @Prop({ required: true })
   strategyName: string;
 
@@ -32,7 +32,7 @@ export const StrategyDetailSchema = SchemaFactory.createForClass<IStrategyDetail
 
 // Define the main document
 @Schema({ timestamps: true })
-export class StrategySchema extends Document {
+export class Strategy {
   @Prop({ required: true })
   symbol: string;
 
@@ -55,4 +55,4 @@ export class StrategySchema extends Document {
   strategies: StrategyDetail[];
 }
 
-export const Strategy = SchemaFactory.createForClass<IStrategy>(StrategySchema);
+export const StrategySchema = SchemaFactory.createForClass<IStrategy>(Strategy);
