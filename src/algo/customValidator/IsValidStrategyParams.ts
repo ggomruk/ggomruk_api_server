@@ -3,7 +3,7 @@ import {
   ValidationArguments,
   ValidationOptions,
 } from 'class-validator';
-import { BacktestDto } from '../dto/backtest.dto';
+import { BacktestDTO } from '../dto/backtest.dto';
 import { E_StrategyNames } from '../enum/strategy';
 import {
   BBParamsValidator,
@@ -23,7 +23,7 @@ export function ValidStrategyParams(validationOptions?: ValidationOptions) {
       options: validationOptions,
       validator: {
         validate(value: any, args: ValidationArguments) {
-          const object = args.object as BacktestDto;
+          const object = args.object as BacktestDTO;
           switch (object.strategyName) {
             case E_StrategyNames.BB:
               return new BBParamsValidator().validate(value, args);
@@ -41,7 +41,7 @@ export function ValidStrategyParams(validationOptions?: ValidationOptions) {
           return false;
         },
         defaultMessage(args: ValidationArguments) {
-          const object = args.object as BacktestDto;
+          const object = args.object as BacktestDTO;
           switch (object.strategyName) {
             case E_StrategyNames.BB:
               return new BBParamsValidator().defaultMessage();

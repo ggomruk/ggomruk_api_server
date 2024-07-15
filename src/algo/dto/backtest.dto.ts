@@ -10,7 +10,7 @@ import { IsDecimalWithStep } from '../customValidator/IsDecimalWithStep';
 import { BB, MACD, RSI, RV, SMA, SO } from '../customValidator/validatorTypes';
 import { ValidStrategyParams } from '../customValidator/IsValidStrategyParams';
 
-export class BacktestDto {
+export class BacktestDTO {
   @IsNotEmpty()
   @IsString()
   strategyName: string;

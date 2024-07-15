@@ -10,13 +10,16 @@ import {
 } from '@nestjs/common';
 import { AlgoException, AlgoExceptionCode } from './algo.exception';
 import { AlgoExceptionFilter } from './algo.exceptionFilter';
-import { BacktestDto } from './dto/backtest.dto';
+import { BacktestDTO } from './dto/backtest.dto';
 import { AlgoValidationPipe } from './algo.pipe';
+import { AlgoService } from './algo.service';
 
 @Controller('/api/algo')
 @UseFilters(AlgoExceptionFilter)
 export class AlgoController {
   private readonly logger = new Logger(AlgoController.name);
+
+  constructor(private readonly algoService: AlgoService) {}
 
   @Get('list')
   getAlgorithms() {
@@ -33,11 +36,10 @@ export class AlgoController {
     return { ok: 1 };
   }
 
-  @Post('register')
-  registerAlgorithm(
-    @Body(new AlgoValidationPipe()) registerAlgoDto: BacktestDto,
-  ) {
-    console.log(registerAlgoDto);
+  @Post('backtest')
+  registerAlgorithm(@Body(new AlgoValidationPipe()) backtestDTO: BacktestDTO) {
+    console.log(backtestDTO);
+    this.algoService.runBacktest(backtestDTO);
     return { ok: 1 };
   }
 
