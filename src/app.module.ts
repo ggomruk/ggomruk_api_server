@@ -3,10 +3,13 @@ import { AlgoModule } from './algo/algo.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import config from './config/config';
+import devConfig from './config/dev.config';
+import prodConfig from './config/prod.config';
 import envValidation from './config/config.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const validationSchema = envValidation();
 const logger = new Logger('App Module');
@@ -18,15 +21,15 @@ const logger = new Logger('App Module');
       envFilePath: '.env',
       cache: true,
       isGlobal: true,
-      load: [config],
+      load: [process.env.NODE_ENV === 'prod' ? prodConfig : devConfig],
     }),
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => {
-        const dbConfig = configService.get(`database.${process.env.NODE_ENV}`);
+        const dbConfig = configService.get('database');
         const uri =
           process.env.NODE_ENV === 'prod'
             ? `mongodb://${dbConfig.username}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}`
-            : `mongodb://localhost:${dbConfig.port}/${dbConfig.dbName}`;
+            : `mongodb://${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}`;
         logger.debug('MongoDB URI: ' + uri);
         return { uri };
       },
