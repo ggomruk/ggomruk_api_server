@@ -9,7 +9,7 @@ async function bootstrap() {
 
   const configService = appContext.get(ConfigService);
 
-  const rabbitMQConfig = configService.get(`rabbitMQ.${process.env.NODE_ENV}`);
+  const rabbitMQConfig = configService.get(`rabbitMQ`);
   const rabbitMqUrl =
     process.env.NODE_ENV === 'prod'
       ? `amqp://${rabbitMQConfig.username}:${rabbitMQConfig.password}@${rabbitMQConfig.host}:${rabbitMQConfig.port}`
