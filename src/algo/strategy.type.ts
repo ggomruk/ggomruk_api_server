@@ -1,31 +1,31 @@
-interface BB {
+interface I_BB {
   window: number;
   numStdDev: number;
 }
-interface MACD {
+interface I_MACD {
   fast: number;
   slow: number;
   signal: number;
 }
-interface RSI {
+interface I_RSI {
   window: number;
   overbought: number;
   oversold: number;
 }
-interface RV {
+interface I_RV {
   reuturnLow: number;
   returnHigh: number;
   volumeLow: number;
   volumeHigh: number;
 }
-interface SMA {
+interface I_SMA {
   short: number;
   medium: number;
   long: number;
 }
-interface SO {
+interface I_SO {
   kWindow: number;
   dWindow: number;
 }
 
-export type StrategyParams = BB | MACD | RSI | RV | SMA | SO;
+export type StrategyParams = I_BB | I_MACD | I_RSI | I_RV | I_SMA | I_SO;

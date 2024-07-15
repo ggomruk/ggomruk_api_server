@@ -1,4 +1,4 @@
-export enum StrategyNames {
+export enum E_StrategyNames {
   BB = 'BB',
   MACD = 'MACD',
   RSI = 'RSI',

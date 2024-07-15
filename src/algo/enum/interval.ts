@@ -1,4 +1,4 @@
-export enum Interval {
+export enum E_Interval {
   '1m' = '1m',
   '3m' = '3m',
   '5m' = '5m',
