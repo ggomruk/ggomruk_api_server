@@ -5,15 +5,15 @@ import { ConfigService } from '@nestjs/config';
 import helment from 'helmet';
 
 async function bootstrap() {
-  const appContext = await NestFactory.createApplicationContext(AppModule);
+  // const appContext = await NestFactory.createApplicationContext(AppModule);
 
-  const configService = appContext.get(ConfigService);
+  // const configService = appContext.get(ConfigService);
 
-  const rabbitMQConfig = configService.get(`rabbitMQ`);
-  const rabbitMqUrl =
-    process.env.NODE_ENV === 'prod'
-      ? `amqp://${rabbitMQConfig.username}:${rabbitMQConfig.password}@${rabbitMQConfig.host}:${rabbitMQConfig.port}`
-      : `amqp://${rabbitMQConfig.host}:${rabbitMQConfig.port}`;
+  // const rabbitMQConfig = configService.get(`rabbitMQ`);
+  // const rabbitMqUrl =
+  //   process.env.NODE_ENV === 'prod'
+  //     ? `amqp://${rabbitMQConfig.username}:${rabbitMQConfig.password}@${rabbitMQConfig.host}:${rabbitMQConfig.port}`
+  //     : `amqp://${rabbitMQConfig.host}:${rabbitMQConfig.port}`;
 
   const app = await NestFactory.create(AppModule);
 
@@ -21,17 +21,17 @@ async function bootstrap() {
   app.use(helment());
   app.enableCors();
 
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.RMQ,
-    options: {
-      urls: [rabbitMqUrl],
-      queue: 'algo_queue',
-      queueOptions: {
-        durable: false,
-      },
-    },
-  });
-  await app.startAllMicroservices();
+  // app.connectMicroservice<MicroserviceOptions>({
+  //   transport: Transport.RMQ,
+  //   options: {
+  //     urls: [rabbitMqUrl],
+  //     queue: 'algo_queue',
+  //     queueOptions: {
+  //       durable: false,
+  //     },
+  //   },
+  // });
+  // await app.startAllMicroservices();
   await app.listen(3000);
 }
 bootstrap();
