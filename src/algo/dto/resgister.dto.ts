@@ -2,7 +2,7 @@ import { IsNotEmpty, IsNumber, IsString, Max, Min } from 'class-validator';
 import { IsDecimalWithStep } from '../customValidator/IsDecimalWithStep';
 import { BB, MACD, RSI, RV, SMA, SO } from '../customValidator/validatorTypes';
 
-export class BacktestDTO {
+export class RegisterAlgoDTO {
   @IsNotEmpty()
   @IsString()
   symbol: string;
