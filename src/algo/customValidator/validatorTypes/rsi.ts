@@ -7,11 +7,11 @@ import { IsNumberWithStep } from '../isNumberWithStep';
 
 export class RSI {
   @IsNumberWithStep(5, 20, 1)
-  window: number;
+  periods: number;
   @IsNumberWithStep(65, 80, 1)
-  overbought: number;
+  rsi_upper: number;
   @IsNumberWithStep(20, 35, 1)
-  oversold: number;
+  rsi_lower: number;
 }
 
 @ValidatorConstraint({ async: true })
@@ -19,9 +19,9 @@ export class RSIParamsValidator implements ValidatorConstraintInterface {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(value: any, args: ValidationArguments) {
     return (
-      value.window !== undefined &&
-      value.overbought !== undefined &&
-      value.oversold !== undefined
+      value.periods !== undefined &&
+      value.rsi_upper !== undefined &&
+      value.rsi_lower !== undefined
     );
   }
 

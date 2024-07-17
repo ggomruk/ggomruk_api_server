@@ -7,13 +7,13 @@ import { IsNumberWithStep } from '../isNumberWithStep';
 
 export class RV {
   @IsNumberWithStep(2, 20, 2)
-  reuturnLow: number;
+  return_thresh_low: number;
   @IsNumberWithStep(80, 98, 2)
-  returnHigh: number;
+  return_thresh_high: number;
   @IsNumberWithStep(0, 18, 2)
-  volumeLow: number;
+  volume_thresh_low: number;
   @IsNumberWithStep(18, 40, 2)
-  volumeHigh: number;
+  volume_thresh_high: number;
 }
 
 @ValidatorConstraint({ async: true })
@@ -21,10 +21,10 @@ export class RVParamsValidator implements ValidatorConstraintInterface {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(value: any, args: ValidationArguments) {
     return (
-      value.resturnLow !== undefined &&
-      value.returnHigh !== undefined &&
-      value.volumeLow !== undefined &&
-      value.volumeHigh !== undefined
+      value.return_thresh_low !== undefined &&
+      value.return_thresh_high !== undefined &&
+      value.volume_thresh_low !== undefined &&
+      value.volume_thresh_high !== undefined
     );
   }
 

@@ -7,16 +7,16 @@ import { IsNumberWithStep } from '../isNumberWithStep';
 
 export class SO {
   @IsNumberWithStep(10, 100, 1)
-  kWindow: number;
+  periods: number;
   @IsNumberWithStep(3, 50, 1)
-  dWindow: number;
+  d_mw: number;
 }
 
 @ValidatorConstraint({ async: true })
 export class SOParamsValidator implements ValidatorConstraintInterface {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(value: any, args: ValidationArguments) {
-    return value.kWindow !== undefined && value.dWindow !== undefined;
+    return value.periods !== undefined && value.d_mw !== undefined;
   }
 
   defaultMessage() {
