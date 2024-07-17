@@ -9,6 +9,7 @@ import envValidation from './config/config.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
 import * as dotenv from 'dotenv';
+import { WebsocketModule } from './websocket/websocket.module';
 dotenv.config();
 
 const validationSchema = envValidation();
@@ -44,6 +45,7 @@ const logger = new Logger('App Module');
     UserModule,
     AuthModule,
     AlgoModule,
+    WebsocketModule,
   ],
 })
 export class AppModule {}
