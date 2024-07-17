@@ -10,6 +10,7 @@ import {
   MarketSchema,
   Market,
 } from './schema';
+import { WebsocketModule } from 'src/websocket/websocket.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import {
       { name: Result.name, schema: ResultSchema },
       { name: Market.name, schema: MarketSchema },
     ]),
+    WebsocketModule,
   ],
   controllers: [AlgoController],
   providers: [AlgoService],

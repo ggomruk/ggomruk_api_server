@@ -37,8 +37,9 @@ export class AlgoController {
   }
 
   @Post('backtest')
-  registerAlgorithm(@Body(new AlgoValidationPipe()) backtestDTO: BacktestDTO) {
-    console.log(backtestDTO);
+  async registerAlgorithm(
+    @Body(new AlgoValidationPipe()) backtestDTO: BacktestDTO,
+  ) {
     this.algoService.runBacktest(backtestDTO);
     return { ok: 1 };
   }
