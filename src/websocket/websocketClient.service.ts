@@ -3,6 +3,7 @@ import { validate } from 'class-validator';
 import { BacktestDTO as ApiBacktestDto } from 'src/algo/dto/backtest.dto';
 import * as WebSocket from 'ws';
 import { BacktestDTO as WsBacktestDTO } from './dto/backtest.dto';
+import { E_Task } from 'src/algo/enum/task';
 
 @Injectable()
 export class WebsocketClientService {
@@ -44,6 +45,16 @@ export class WebsocketClientService {
       const message = data.toString('utf-8');
       try {
         const jsonData = JSON.parse(message);
+        console.log('Received data from websocket server');
+        if (jsonData['ok']) {
+          const { task, result } = jsonData;
+          if (task == E_Task.BACKTEST) {
+            // Backtest result
+            console.log('Backtest result:', result);
+          } else if (task == E_Task.TRADE) {
+            console.log('Trade');
+          }
+        }
         console.log(jsonData);
       } catch (err) {
         this.logger.error('Error while parsing message');
@@ -60,13 +71,12 @@ export class WebsocketClientService {
     if (errors.length) {
       this.logger.error('Validation failed');
       throw new Error('Validation failed');
-    } else {
-      const data = WsBacktestDTO.fromApiBacktestDto(task, uid, backtestData);
-      this.wsClient.send(JSON.stringify(data), (err) => {
-        if (err) {
-          this.logger.error('Error while sending data to websocket');
-        }
-      });
     }
+    const data = WsBacktestDTO.fromApiBacktestDto(task, uid, backtestData);
+    this.wsClient.send(JSON.stringify(data), (err) => {
+      if (err) {
+        this.logger.error('Error while sending data to websocket');
+      }
+    });
   }
 }

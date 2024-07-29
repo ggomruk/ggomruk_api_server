@@ -9,7 +9,8 @@ import envValidation from './config/config.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
 import * as dotenv from 'dotenv';
-import { WebsocketModule } from './websocket/websocket.module';
+import { RedisModule } from './redis/redis.module';
+import { DevtoolsModule } from '@nestjs/devtools-integration';
 dotenv.config();
 
 const validationSchema = envValidation();
@@ -17,6 +18,9 @@ const logger = new Logger('App Module');
 
 @Module({
   imports: [
+    DevtoolsModule.register({
+      http: process.env.NODE_ENV !== 'prod',
+    }),
     ConfigModule.forRoot({
       validationSchema,
       envFilePath: '.env',
@@ -42,10 +46,10 @@ const logger = new Logger('App Module');
         limit: 10, // maximum number of requests a source is allowed to make within the specific ttl. further requests are blocked if limit is reached
       },
     ]),
+    RedisModule,
     UserModule,
     AuthModule,
     AlgoModule,
-    WebsocketModule,
   ],
 })
 export class AppModule {}
