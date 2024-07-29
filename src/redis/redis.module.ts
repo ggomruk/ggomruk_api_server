@@ -4,10 +4,12 @@ import redisConfig from './redis.config';
 import { redisClientFactory } from './redis.factory';
 import { RedisRepoistory } from './redis.repository';
 import { RedisService } from './redis.service';
+import { RedisSubscriberController } from './redis.subscriber';
 
 @Module({
   imports: [ConfigModule.forFeature(redisConfig)],
   providers: [redisClientFactory, RedisRepoistory, RedisService],
+  controllers: [RedisSubscriberController],
   exports: [RedisService],
 })
 export class RedisModule {}
