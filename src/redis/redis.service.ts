@@ -6,14 +6,6 @@ export class RedisService {
   private readonly logger = new Logger(RedisService.name);
   constructor(private readonly repository: RedisRepoistory) {}
 
-  subscribeBacktestResult(
-    channel: string,
-    callback: (message: string) => void,
-  ) {
-    // TODO. Callback
-    this.repository.subscribe(channel, callback);
-  }
-
   async publishBacktestData(channel: string, message: string) {
     this.logger.log(`Publishing message: ${message} to channel: ${channel}`);
 

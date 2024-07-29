@@ -1,21 +1,14 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { BacktestDTO } from './dto/backtest.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { E_Task } from './enum/task';
 import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
-export class AlgoService implements OnModuleInit {
+export class AlgoService {
   private readonly logger = new Logger(AlgoService.name);
 
   constructor(private readonly redisService: RedisService) {}
-
-  onModuleInit() {
-    // this.redisService.subscribeBacktestResult(
-    //   'backtest',
-    //   this.handleBacktestResult.bind(this),
-    // );
-  }
 
   async runBacktest(data: BacktestDTO) {
     const task = E_Task.BACKTEST;
