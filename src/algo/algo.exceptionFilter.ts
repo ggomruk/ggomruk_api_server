@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
 import { Response } from 'express';
 import { AlgoException, AlgoExceptionCode } from './algo.exception';
 
@@ -9,12 +9,16 @@ interface AlgoExceptionResponse {
 
 @Catch(AlgoException)
 export class AlgoExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(AlgoExceptionFilter.name);
+
   catch(exception: AlgoException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const status = exception.getStatus();
+    const status = exception.getStatus(); // HTTP Status Code
 
     const { code, message } = exception.getResponse() as AlgoExceptionResponse;
+
+    this.logger.error(JSON.stringify({ code, message, status }));
 
     response.status(status).json({
       errorCode: code,

@@ -40,8 +40,8 @@ export class AlgoController {
   async registerAlgorithm(
     @Body(new AlgoValidationPipe()) backtestDTO: BacktestDTO,
   ) {
-    this.algoService.runBacktest(backtestDTO);
-    return { ok: 1 };
+    const result = await this.algoService.runBacktest(backtestDTO);
+    return { ok: 1, data: result };
   }
 
   @Get('result')

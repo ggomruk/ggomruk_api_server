@@ -10,7 +10,8 @@ import {
   MarketSchema,
   Market,
 } from './schema';
-import { WebsocketModule } from 'src/websocket/websocket.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
@@ -19,7 +20,17 @@ import { WebsocketModule } from 'src/websocket/websocket.module';
       { name: Result.name, schema: ResultSchema },
       { name: Market.name, schema: MarketSchema },
     ]),
-    WebsocketModule,
+    ClientsModule.register([
+      {
+        name: 'ALGO_SERVICE',
+        transport: Transport.REDIS,
+        options: {
+          host: 'localhost',
+          port: 6379,
+        },
+      },
+    ]),
+    RedisModule,
   ],
   controllers: [AlgoController],
   providers: [AlgoService],
