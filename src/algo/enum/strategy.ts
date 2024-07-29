@@ -6,3 +6,9 @@ export enum E_StrategyNames {
   SMA = 'SMA',
   SO = 'SO',
 }
+
+export function isValidStrategyName(strategyName: string): boolean {
+  return Object.values(E_StrategyNames).includes(
+    strategyName.toUpperCase() as E_StrategyNames,
+  );
+}

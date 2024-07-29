@@ -9,12 +9,9 @@ import {
 import { IsDecimalWithStep } from '../customValidator/IsDecimalWithStep';
 import { BB, MACD, RSI, RV, SMA, SO } from '../customValidator/validatorTypes';
 import { ValidStrategyParams } from '../customValidator/IsValidStrategyParams';
+import { E_StrategyNames } from '../enum/strategy';
 
 export class BacktestDTO {
-  @IsNotEmpty()
-  @IsString()
-  strategyName: string;
-
   @IsNotEmpty()
   @IsString()
   symbol: string;
@@ -52,10 +49,5 @@ export class BacktestDTO {
   @ValidStrategyParams({
     message: 'Invalid strategy parameters for the given strategy name',
   })
-  strategyParams: BB | MACD | RSI | RV | SMA | SO;
-}
-
-export class Strategy {
-  startegyName: string;
-  params: Record<string, BB | MACD | RSI | RV | SMA | SO>;
+  strategies: Record<E_StrategyNames, BB | MACD | RSI | RV | SMA | SO>;
 }
