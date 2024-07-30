@@ -8,15 +8,15 @@ import { I_SO, SODocument, SOSchema } from './so.schema';
 import mongoose, { Document } from 'mongoose';
 
 export interface IStrategies {
-    bb: I_BB;
-    macd: I_MACD;
-    rsi: I_RSI;
-    rv: I_RV;
-    sma: I_SMA;
-    so: I_SO;
+    bb?: I_BB;
+    macd?: I_MACD;
+    rsi?: I_RSI;
+    rv?: I_RV;
+    sma?: I_SMA;
+    so?: I_SO;
 };
 
-@Schema({timestamps: false})
+@Schema({timestamps: false, _id: false})
 export class StrategiesDocument extends Document implements IStrategies {
     @Prop({ required: false, type: BBSchema })
     bb: BBDocument;
