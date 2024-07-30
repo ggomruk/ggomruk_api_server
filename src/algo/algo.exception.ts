@@ -9,6 +9,9 @@ export enum AlgoExceptionCode {
   SERVER_EXCEPTION = 2003,
   // User try to load an algorithm that does not exists
   ALGO_DOES_NOT_EXISTS = 2004,
+  DUPLICATE_UID = 2005,
+  BACKTEST_NOT_FOUND = 2006,
+  BACKTEST_RESULT_ALREADY_EXISTS = 2007,
 }
 
 @Injectable()
