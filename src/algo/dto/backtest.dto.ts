@@ -10,6 +10,7 @@ import { IsDecimalWithStep } from '../customValidator/IsDecimalWithStep';
 import { BB, MACD, RSI, RV, SMA, SO } from '../customValidator/validatorTypes';
 import { ValidStrategyParams } from '../customValidator/IsValidStrategyParams';
 import { E_StrategyNames } from '../enum/strategy';
+import { IBacktestParams } from 'src/database/schema/backtestParams.schema';
 
 export class BacktestDTO {
   @IsNotEmpty()
@@ -18,7 +19,7 @@ export class BacktestDTO {
 
   @IsNotEmpty()
   @IsNumber()
-  usdt: string;
+  usdt: number;
 
   @IsNotEmpty()
   @IsString()
@@ -26,11 +27,11 @@ export class BacktestDTO {
 
   @IsNotEmpty()
   @IsDateString()
-  startDate: number;
+  startDate: string;
 
   @IsNotEmpty()
   @IsDateString()
-  endDate: number;
+  endDate: string;
 
   @IsNotEmpty()
   @IsNumber()
@@ -50,4 +51,22 @@ export class BacktestDTO {
     message: 'Invalid strategy parameters for the given strategy name',
   })
   strategies: Record<E_StrategyNames, BB | MACD | RSI | RV | SMA | SO>;
+  
+  toBacktestParams() : IBacktestParams{
+    let strategies = {}
+    for (const strategy in this.strategies) {
+      let params = this.strategies[strategy]
+      strategies[strategy.toLowerCase()] = params
+    }
+    return {
+      symbol: this.symbol,
+      startDate: new Date(this.startDate),
+      endDate: new Date(this.endDate),
+      commission: this.tc,
+      usdt: this.usdt,
+      leverage: this.leverage,
+      interval: this.interval,
+      strategies: strategies,
+    };
+  }
 }
