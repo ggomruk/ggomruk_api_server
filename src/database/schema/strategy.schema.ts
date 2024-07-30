@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { StrategyParams } from '../strategy.type';
+import { StrategyParams } from '../../algo/strategy.type';
 
 interface IStrategyDetail {
   strategyName: string;

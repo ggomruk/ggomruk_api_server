@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-interface IResult {
+export interface IResult {
   strategyReturn: number;
   buyHoldReturn: number;
   cagr: number;
