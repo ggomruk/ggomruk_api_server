@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
 export interface I_MACD {
     ema_s: number;
@@ -8,7 +8,7 @@ export interface I_MACD {
 }
 
 @Schema({timestamps: false})
-export class MACD extends Document implements I_MACD {
+export class MACDDocument extends Document implements I_MACD {
     @Prop({ required: true, type: Number })
     ema_s: number;
 
@@ -19,4 +19,5 @@ export class MACD extends Document implements I_MACD {
     signal_mw: number;
 }
 
-export const MACDSchema = SchemaFactory.createForClass<I_MACD>(MACD);
+export const MACDSchema = SchemaFactory.createForClass<I_MACD>(MACDDocument);
+export const MACDModel = mongoose.model<MACDDocument>('MACD', MACDSchema);

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
 export interface I_BB {
     sma: number;
@@ -7,7 +7,7 @@ export interface I_BB {
   }
 
 @Schema({timestamps: false})
-export class BB extends Document implements I_BB {
+export class BBDocument extends Document implements I_BB {
     @Prop({ required: true, type: Number })
     sma: number;
 
@@ -15,4 +15,5 @@ export class BB extends Document implements I_BB {
     dev: number;
 }
 
-export const BBSchema = SchemaFactory.createForClass<I_BB>(BB);
+export const BBSchema = SchemaFactory.createForClass<I_BB>(BBDocument);
+export const BBModel = mongoose.model<BBDocument>('BB', BBSchema);

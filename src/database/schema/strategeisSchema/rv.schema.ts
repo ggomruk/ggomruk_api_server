@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
 export interface I_RV {
     return_thresh_low: number;
@@ -9,7 +9,7 @@ export interface I_RV {
 }
 
 @Schema({timestamps: false})
-export class RV extends Document implements I_RV {
+export class RVDocument extends Document implements I_RV {
     @Prop({ required: true, type: Number })
     return_thresh_low: number;
 
@@ -23,4 +23,5 @@ export class RV extends Document implements I_RV {
     volume_thresh_high: number;
 }
 
-export const RVSchema = SchemaFactory.createForClass<I_RV>(RV);
+export const RVSchema = SchemaFactory.createForClass<I_RV>(RVDocument);
+export const RVModel = mongoose.model<RVDocument>('RV', RVSchema);

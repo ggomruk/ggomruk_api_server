@@ -1,17 +1,17 @@
 import { MongooseModule } from "@nestjs/mongoose";
 import { Strategy } from "passport-local";
-import { Backtest, BacktestSchema, Result, ResultSchema, Market, MarketSchema } from "./schema";
+import { BacktestDocument, BacktestSchema, Market, MarketSchema } from "./schema";
 import { Module } from "@nestjs/common";
-import { ResultSchemaRepository } from "./repository/result.repository";
+import { BacktestSchemaRepository } from "./repository/backtest.repository";
 
 @Module({
     imports: [
         MongooseModule.forFeature([
-            { name: Backtest.name, schema: BacktestSchema },
+            { name: BacktestDocument.name, schema: BacktestSchema },
             { name: Market.name, schema: MarketSchema },
         ])
     ],
-    providers: [],
+    providers: [BacktestSchemaRepository],
     exports: [MongooseModule]
 })
 export class DatabaseModule {}

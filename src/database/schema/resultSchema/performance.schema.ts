@@ -1,5 +1,5 @@
 import { Prop, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 
 export interface IPerformance {
@@ -15,7 +15,7 @@ export interface IPerformance {
     finalUsdt: number;
 }
 
-export class Performance extends Document implements IPerformance {
+export class PerformanceDocument extends Document implements IPerformance {
     @Prop({ required: true, type: Number })
     leverageApplied: number;
     
@@ -47,4 +47,6 @@ export class Performance extends Document implements IPerformance {
     finalUsdt: number;
 }
 
-export const PerformanceSchema = SchemaFactory.createForClass<IPerformance>(Performance);
+export const PerformanceSchema = SchemaFactory.createForClass<IPerformance>(PerformanceDocument);
+
+export const PerformanceModel = mongoose.model<PerformanceDocument>('Performance', PerformanceSchema);

@@ -2,26 +2,27 @@ import { Injectable, Logger } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { IResult } from "../schema/result.schema";
+import { IBacktest } from "../schema/backtest.schema";
 
 @Injectable()
-export class ResultSchemaRepository {
-    private readonly logger = new Logger(ResultSchemaRepository.name);
+export class BacktestSchemaRepository {
+    private readonly logger = new Logger(BacktestSchemaRepository.name);
 
     constructor(
-        @InjectModel('Result') private readonly resultModel: Model<IResult>
+        @InjectModel('BacktestDocument') private readonly backtestModel: Model<IBacktest>
     ) {}
 
-    async getData(uid: string): Promise<IResult> {
+    async getData(uid: string): Promise<IBacktest> {
         const query = { uid };
-        const result = await this.resultModel.findOne(query);
+        const result = await this.backtestModel.findOne(query);
         return result;
     }
 
-    async insertData(data: IResult) {
+    async insertData(data: IBacktest) {
         const query = {};
         const update = { $set: data };
         const options = { upsert: true, new: true };
-        const result = await this.resultModel.findOneAndUpdate(
+        const result = await this.backtestModel.findOneAndUpdate(
             query,
             update,
             options,

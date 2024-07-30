@@ -1,6 +1,6 @@
 
 import { Prop, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export interface ILeveragedPerformance {
     leverageApplied: number;
@@ -12,7 +12,7 @@ export interface ILeveragedPerformance {
     finalUsdtLeveraged: number;
 }
 
-export class LeveragedPerformance extends Document implements ILeveragedPerformance {
+export class LeveragedPerformanceDocument extends Document implements ILeveragedPerformance {
     @Prop({ required: true, type: Number })
     leverageApplied: number;
     
@@ -35,4 +35,6 @@ export class LeveragedPerformance extends Document implements ILeveragedPerforma
     finalUsdtLeveraged: number;
 }
 
-export const LeveragedPerformanceSchema = SchemaFactory.createForClass<ILeveragedPerformance>(LeveragedPerformance);
+export const LeveragedPerformanceSchema = SchemaFactory.createForClass<ILeveragedPerformance>(LeveragedPerformanceDocument);
+
+export const LeveragedPerformanceModel = mongoose.model<LeveragedPerformanceDocument>('LeveragedPerformance', LeveragedPerformanceSchema);

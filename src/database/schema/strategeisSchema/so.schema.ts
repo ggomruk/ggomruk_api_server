@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
 export interface I_SO {
     periods: number;
@@ -7,7 +7,7 @@ export interface I_SO {
 }
 
 @Schema({timestamps: false})
-export class SO extends Document implements I_SO {
+export class SODocument extends Document implements I_SO {
     @Prop({ required: true, type: Number })
     periods: number;
 
@@ -15,4 +15,5 @@ export class SO extends Document implements I_SO {
     d_mw: number;
 }
 
-export const SOSchema = SchemaFactory.createForClass<I_SO>(SO);
+export const SOSchema = SchemaFactory.createForClass<I_SO>(SODocument);
+export const SOModel = mongoose.model<SODocument>('SO', SOSchema);

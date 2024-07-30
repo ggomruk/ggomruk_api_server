@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { IStrategies, Strategies, StrategiesSchema } from "./strategeisSchema/strategies.schema";
-import { Document } from 'mongoose';
+import { IStrategies, StrategiesDocument, StrategiesSchema } from "./strategeisSchema/strategies.schema";
+import mongoose, { Document } from 'mongoose';
 
 export interface IBacktestParams {
     symbol: string;
@@ -14,7 +14,7 @@ export interface IBacktestParams {
 }
     
 @Schema({ timestamps: false })
-export class BacktestParams extends Document implements IBacktestParams {
+export class BacktestParamsDocument extends Document implements IBacktestParams {
     @Prop({ required: true, type: String })
     symbol: string;
 
@@ -37,7 +37,9 @@ export class BacktestParams extends Document implements IBacktestParams {
     interval: string;
 
     @Prop({ required: true, type: StrategiesSchema })
-    strategies: Strategies;
+    strategies: StrategiesDocument;
 }
 
-export const BacktestParamsSchema = SchemaFactory.createForClass<IBacktestParams>(BacktestParams);
+export const BacktestParamsSchema = SchemaFactory.createForClass<IBacktestParams>(BacktestParamsDocument);
+
+export const BacktestModel = mongoose.model<BacktestParamsDocument>('BacktestParams', BacktestParamsSchema);

@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { I_BB, BBSchema, BB } from './bb.schema';
-import { I_MACD, MACD, MACDSchema } from './macd.schema';
-import { I_RSI, RSI, RSISchema } from './rsi.schema';
-import { I_RV, RV, RVSchema } from './rv.schema';
-import { I_SMA, SMA, SMASchema } from './sma.schema';
-import { I_SO, SO, SOSchema } from './so.schema';
-import { Document } from 'mongoose';
+import { I_BB, BBSchema, BBDocument } from './bb.schema';
+import { I_MACD, MACDDocument, MACDSchema } from './macd.schema';
+import { I_RSI, RSIDocument, RSISchema } from './rsi.schema';
+import { I_RV, RVDocument, RVSchema } from './rv.schema';
+import { I_SMA, SMADocument, SMASchema } from './sma.schema';
+import { I_SO, SODocument, SOSchema } from './so.schema';
+import mongoose, { Document } from 'mongoose';
 
 export interface IStrategies {
     bb: I_BB;
@@ -17,19 +17,20 @@ export interface IStrategies {
 };
 
 @Schema({timestamps: false})
-export class Strategies extends Document implements IStrategies {
+export class StrategiesDocument extends Document implements IStrategies {
     @Prop({ required: false, type: BBSchema })
-    bb: BB;
+    bb: BBDocument;
     @Prop({ required: false, type: MACDSchema })
-    macd: MACD;
+    macd: MACDDocument;
     @Prop({ required: false, type: RSISchema })
-    rsi: RSI;
+    rsi: RSIDocument;
     @Prop({ required: false, type: RVSchema })
-    rv: RV;
+    rv: RVDocument;
     @Prop({ required: false, type: SMASchema })
-    sma: SMA;
+    sma: SMADocument;
     @Prop({ required: false, type: SOSchema })
-    so: SO;
+    so: SODocument;
 }
 
-export const StrategiesSchema = SchemaFactory.createForClass<IStrategies>(Strategies);
+export const StrategiesSchema = SchemaFactory.createForClass<IStrategies>(StrategiesDocument);
+export const StrategiesModel = mongoose.model<StrategiesDocument>('Result', StrategiesSchema);
