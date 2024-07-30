@@ -1,25 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AlgoController } from './algo.controller';
 import { AlgoService } from './algo.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import {
-  StrategySchema,
-  Strategy,
-  ResultSchema,
-  Result,
-  MarketSchema,
-  Market,
-} from './schema';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { RedisModule } from 'src/redis/redis.module';
+import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([
-      { name: Strategy.name, schema: StrategySchema },
-      { name: Result.name, schema: ResultSchema },
-      { name: Market.name, schema: MarketSchema },
-    ]),
+    DatabaseModule,
     ClientsModule.register([
       {
         name: 'ALGO_SERVICE',
