@@ -6,12 +6,13 @@ import { AlgoException, AlgoExceptionCode } from './algo.exception';
 @Injectable()
 export class AlgoValidationPipe implements PipeTransform<any> {
   async transform(value: any, metadata: ArgumentMetadata) {
+    const targetType = metadata.metatype;
     // metadata.metatype is the class that the value should be transformed to
-    if (!metadata.metatype || !this.toValidate(metadata.metatype)) {
+    if (!targetType || !this.toValidate(targetType)) {
       return value;
     }
     // transforms a plain object to an instance of a class
-    const object = plainToInstance(metadata.metatype, value);
+    const object = plainToInstance(targetType, value); // value -> targetType
     const errors = await validate(object);
     if (errors.length) {
       throw new AlgoException(
@@ -19,7 +20,7 @@ export class AlgoValidationPipe implements PipeTransform<any> {
         `Invalid or missing input parameters: ${errors.map((e) => e.property).join(', ')}`,
       );
     }
-    return value;
+    return object;
   }
 
   private toValidate(metatype): boolean {
