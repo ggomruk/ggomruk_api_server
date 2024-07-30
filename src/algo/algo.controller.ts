@@ -21,32 +21,24 @@ export class AlgoController {
 
   constructor(private readonly algoService: AlgoService) {}
 
-  @Get('list')
-  getAlgorithms() {
-    throw new AlgoException(
-      AlgoExceptionCode.ALGO_DOES_NOT_EXISTS,
-      'Algorithm does not exists',
-      HttpStatus.OK,
-    );
-  }
-
-  @Get(':id')
-  getAlgorithm(@Param('id') id: number) {
-    console.log(id);
-    return { ok: 1 };
-  }
-
   @Post('backtest')
   async registerAlgorithm(
     @Body(new AlgoValidationPipe()) backtestDTO: BacktestDTO,
   ) {
-    const result = await this.algoService.runBacktest(backtestDTO);
-    return { ok: 1, data: result };
+    try {
+      const result = await this.algoService.runBacktest(backtestDTO);
+      return { ok: 1, data: result };
+    } catch(err) {
+      console.error(err)
+      let errorResponse = err.response;
+      if (err instanceof AlgoException) {
+        return { ok: 0, error: err.message, code: errorResponse.code };
+      }
+      return { ok: 0, error: err.message };
+    }
   }
 
   @Get('result')
   getTestResult() {}
 
-  @Post('backtest')
-  backtest() {}
 }
