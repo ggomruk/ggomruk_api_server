@@ -6,7 +6,7 @@ export interface IConfig {
     password?: string;
     dbName: string;
   };
-  rabbitMq: {
+  redis: {
     host: string;
     port: number;
     username: string;
