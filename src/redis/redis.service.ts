@@ -4,7 +4,9 @@ import { RedisRepoistory } from './redis.repository';
 @Injectable()
 export class RedisService {
   private readonly logger = new Logger(RedisService.name);
-  constructor(private readonly repository: RedisRepoistory) {}
+  constructor(
+    private readonly repository: RedisRepoistory
+  ) {}
 
   async publishBacktestData(channel: string, message: string) {
     this.logger.log(`Publishing message: ${message} to channel: ${channel}`);
