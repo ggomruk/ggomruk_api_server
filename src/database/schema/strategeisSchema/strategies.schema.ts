@@ -33,4 +33,4 @@ export class StrategiesDocument extends Document implements IStrategies {
 }
 
 export const StrategiesSchema = SchemaFactory.createForClass<IStrategies>(StrategiesDocument);
-export const StrategiesModel = mongoose.model<StrategiesDocument>('Result', StrategiesSchema);
+export const StrategiesModel = mongoose.model<StrategiesDocument>('Strategies', StrategiesSchema);
