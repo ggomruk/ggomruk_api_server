@@ -7,7 +7,7 @@ export interface I_MACD {
     signal_mw: number;
 }
 
-@Schema({timestamps: false})
+@Schema({timestamps: false, _id: false})
 export class MACDDocument extends Document implements I_MACD {
     @Prop({ required: true, type: Number })
     ema_s: number;

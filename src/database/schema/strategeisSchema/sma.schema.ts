@@ -7,7 +7,7 @@ export interface I_SMA {
     sma_l: number;
 }
 
-@Schema({timestamps: false})
+@Schema({timestamps: false, _id: false})
 export class SMADocument extends Document implements I_SMA {
     @Prop({ required: true, type: Number })
     sma_s: number;

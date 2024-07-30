@@ -8,7 +8,7 @@ export interface I_RV {
     volume_thresh_high: number;
 }
 
-@Schema({timestamps: false})
+@Schema({timestamps: false, _id: false})
 export class RVDocument extends Document implements I_RV {
     @Prop({ required: true, type: Number })
     return_thresh_low: number;

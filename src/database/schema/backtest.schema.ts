@@ -6,10 +6,10 @@ import { IResult, ResultDocument, ResultSchema } from "./result.schema";
 export interface IBacktest {
     uid: string;
     backtestParams: IBacktestParams;
-    result: IResult;
+    result?: IResult;
 }
 
-@Schema({timestamps: true})
+@Schema({timestamps: true, collection: 'backtest'})
 export class BacktestDocument extends Document implements IBacktest {
     @Prop({ required: true, type: String})
     uid: string;

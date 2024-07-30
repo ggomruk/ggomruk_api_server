@@ -7,7 +7,7 @@ export interface I_RSI {
     rsi_lower: number;
 }
 
-@Schema({timestamps: false})
+@Schema({timestamps: false, _id: false})
 export class RSIDocument extends Document implements I_RSI {
     @Prop({ required: true, type: Number })
     periods: number;

@@ -6,7 +6,7 @@ export interface I_SO {
     d_mw: number;
 }
 
-@Schema({timestamps: false})
+@Schema({timestamps: false, _id: false})
 export class SODocument extends Document implements I_SO {
     @Prop({ required: true, type: Number })
     periods: number;

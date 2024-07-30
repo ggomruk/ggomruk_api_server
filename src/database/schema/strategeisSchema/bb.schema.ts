@@ -6,7 +6,7 @@ export interface I_BB {
     dev: number;
   }
 
-@Schema({timestamps: false})
+@Schema({timestamps: false, _id: false})
 export class BBDocument extends Document implements I_BB {
     @Prop({ required: true, type: Number })
     sma: number;

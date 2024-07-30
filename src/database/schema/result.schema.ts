@@ -9,7 +9,7 @@ export interface IResult {
   leveragedPerformance: ILeveragedPerformance;
 }
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, _id: false })
 export class ResultDocument extends Document implements IResult {
   @Prop({ required: true, type: String})
   strategyName: string;
