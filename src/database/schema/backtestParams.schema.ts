@@ -7,13 +7,13 @@ export interface IBacktestParams {
     startDate: Date;
     endDate: Date;
     commission: number;
-    usdt: string;
-    leverage: string;
+    usdt: number;
+    leverage: number;
     interval: string;
     strategies: IStrategies;
 }
     
-@Schema({ timestamps: false })
+@Schema({ timestamps: false, _id: false })
 export class BacktestParamsDocument extends Document implements IBacktestParams {
     @Prop({ required: true, type: String })
     symbol: string;
@@ -27,11 +27,11 @@ export class BacktestParamsDocument extends Document implements IBacktestParams 
     @Prop({ required: true, type: Number })
     commission: number;
 
-    @Prop({ required: true, type: String })
-    usdt: string;
+    @Prop({ required: true, type: Number })
+    usdt: number;
 
-    @Prop({ required: true, type: String })
-    leverage: string;
+    @Prop({ required: true, type: Number })
+    leverage: number;
 
     @Prop({ required: true, type: String })
     interval: string;
