@@ -8,24 +8,13 @@ import { validBacktestBody, invalidBacktestBody } from "./stub/backtest.stub";
 import * as request from "supertest";
 import { AlgoExceptionCode } from "../algo.exception";
 
-describe('Algo', () => {
+describe('Algo Controller', () => {
     let app: INestApplication;
     let algoService: AlgoService;
     let algoController: AlgoController;
 
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            providers: [
-                AlgoService,
-                {
-                    provide: BacktestService,
-                    useValue: {}
-                },
-                {
-                    provide: RedisService,
-                    useValue: {}
-                },
-            ],
             controllers: [AlgoController]
         }).compile();
         
