@@ -29,7 +29,7 @@ export class BacktestService implements IBacktestService {
         return null;
     }
     
-    async saveWithUidAndBacktestParams(uid: string, params: IBacktestParams): Promise<BacktestDocument|null> {
+    async saveWithUidAndBacktestParams(uid: string, params: IBacktestParams): Promise<BacktestDocument> {
         let result = await this.backtestRepository.insertData({uid, backtestParams: params});
         return result;
     }

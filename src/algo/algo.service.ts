@@ -21,8 +21,9 @@ export class AlgoService {
     let backtestParams : IBacktestParams = data.toBacktestParams();
 
     // Insert backtest data if not exists
-    let res = await this.backtestService.saveWithUidAndBacktestParams(uid, backtestParams);
-    if (!res) {
+    try {
+      await this.backtestService.saveWithUidAndBacktestParams(uid, backtestParams);
+    } catch (error){
       this.logger.error(`Failed to save backtest data: ${uid}`);
       throw new AlgoException(AlgoExceptionCode.DUPLICATE_UID, 'Duplicate backtest exists');
     }
@@ -36,7 +37,7 @@ export class AlgoService {
       );
     } catch (error) {
       this.logger.error(`Error while sending backtest data: ${error.message}`);
-      throw new Error(`Error while sending backtest data: ${error.message}`);
+      throw new Error(error.message);
     }
 
     return uid;
