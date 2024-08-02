@@ -3,15 +3,18 @@ import { Test, TestingModule } from "@nestjs/testing"
 import { AlgoService } from "../algo.service"
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from "mongoose"
-import { RedisService } from "src/redis/redis.service"
 import { BacktestService } from "src/database/service/backtest.service"
 import { validBacktestBody } from "./stub/backtest.stub"
 import { IBacktestParams } from 'src/database/schema/backtestParams.schema';
+import { E_Task } from '../enum/task';
+import Redis from 'ioredis-mock';
+import { RedisService } from 'src/redis/redis.service';
 
 describe('Algo Service', () => {
     let algoService: AlgoService;
     let backtestService: BacktestService;
     let mongod: MongoMemoryServer;
+    let redisClient;
     
     beforeAll(async () => {
         mongod = await MongoMemoryServer.create();
@@ -25,15 +28,19 @@ describe('Algo Service', () => {
                 AlgoService,
                 {
                     provide: RedisService,
-                    useValue: {
-                        publishBacktestData: jest.fn().mockImplementation(() => Promise.resolve())
-                    }
+                    useValue: new Redis()
                 },
                 {
                     provide: BacktestService,
                     useValue: {
                         saveWithUidAndBacktestParams: jest.fn().mockImplementation(async (uid, backtestParams) => {
-                            let result = await mongoose.connection.collection('backtest').insertOne({uid, backtestParams})
+                            const collection = mongoose.connection.collection('backtest');
+                            
+                            let existing = await collection.findOne({uid});
+                            if (existing) {
+                                throw new Error('Data already exists');
+                            }
+                            let result = await collection.insertOne({uid, backtestParams})
                             return result;
                         })
                     }
@@ -43,6 +50,9 @@ describe('Algo Service', () => {
     
         algoService = module.get<AlgoService>(AlgoService)
         backtestService = module.get<BacktestService>(BacktestService)
+        redisClient = module.get(RedisService)
+
+        console.log(redisClient)
 
     })
 
@@ -52,6 +62,8 @@ describe('Algo Service', () => {
             const collection = collections[key];
             await collection.deleteMany({});
         }
+        redisClient.flushall();
+        redisClient.quit();
     })
 
     afterAll(async () => {
@@ -82,8 +94,44 @@ describe('Algo Service', () => {
         expect(insertDataResult['acknowledged']).toBe(true);
     });
 
-    it('Error should be thrown if data already exists', () => {
-        expect(1).toBe(1);
-    }); 
+    it('Error should be thrown if data already exists', async () => {
+        const uid = uuidv4();
+        let strategies = {}
+        for (const strategy in validBacktestBody.strategies) {
+            let params = validBacktestBody.strategies[strategy]
+            strategies[strategy.toLowerCase()] = params
+        }
+        let { symbol, usdt, interval, startDate, endDate, tc, leverage } = validBacktestBody;
+        let backtestParams : IBacktestParams = {
+            symbol,
+            usdt,
+            interval,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            commission: tc,
+            leverage,
+            strategies
+        };
+
+        await backtestService.saveWithUidAndBacktestParams(uid, backtestParams);
+        try {
+            let result = await backtestService.saveWithUidAndBacktestParams(uid, backtestParams);
+        } catch (e) {
+            expect(e.message).toBe('Data already exists');
+        }
+    });
+
+    it("Data should be published to redis", async () => {
+        let uid = uuidv4();
+        let task = E_Task.BACKTEST;
+        let data = {}
+
+        let metadata = { timestamp: new Date().toISOString() };
+        data = { ...data, ...metadata };
+
+        let result = await redisClient.publish(task, JSON.stringify({ task, uid, data }));
+        expect(result).toBe(0);
+    });
+
 
 })
