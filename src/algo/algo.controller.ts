@@ -11,6 +11,7 @@ import { AlgoExceptionFilter } from './algo.exceptionFilter';
 import { BacktestDTO } from './dto/backtest.dto';
 import { AlgoValidationPipe } from './algo.pipe';
 import { AlgoService } from './algo.service';
+import { SignalDTO } from './dto/signal.dto';
 
 @Controller('/api/algo')
 @UseFilters(AlgoExceptionFilter)
@@ -27,13 +28,26 @@ export class AlgoController {
       const result = await this.algoService.runBacktest(backtestDTO);
       return { ok: 1, data: result };
     } catch(err) {
-      console.error(err)
       let errorResponse = err.response;
       if (err instanceof AlgoException) {
         return { ok: 0, error: err.message, code: errorResponse.code };
       }
       return { ok: 0, error: err.message };
     }
+  }
+
+  @Post('signal')
+    async registerSignal(@Body(new AlgoValidationPipe()) signalDTO: SignalDTO) {
+      try {
+        this.logger.log(`Received Data: ${JSON.stringify(signalDTO)}`);
+      } catch (err) {
+        let errorResponse = err.response;
+        if (err instanceof AlgoException) {
+          return { ok: 0, err: err.message, code: errorResponse.code }
+        }
+        return { ok: 0, err: err.message}
+      }
+      
   }
 
   @Get('result')
