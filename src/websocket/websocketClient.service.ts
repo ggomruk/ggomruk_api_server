@@ -6,6 +6,7 @@ import { BacktestDTO as WsBacktestDTO } from './dto/backtest.dto';
 import { E_Task } from 'src/algo/enum/task';
 import { MODULE_OPTIONS_TOKEN } from './websocket.moduleDefinition';
 import { IWebsocketConfig } from './interfaces/websocketConfig.interface';
+import { SignalDTO } from 'src/algo/dto/signal.dto';
 
 @Injectable()
 export class WebsocketClientService {
@@ -29,6 +30,7 @@ export class WebsocketClientService {
 
   protected onOpen() {
     this.logger.debug('Connected to Websocket server => ws://localhost:8765');
+    this.reconnectAttempts = 0;
   }
   protected onClose() {
     this.logger.debug(`Websocket Connection closed`);
@@ -68,7 +70,7 @@ export class WebsocketClientService {
   public async sendBacktestData(
     task: string,
     uid: string,
-    backtestData: ApiBacktestDto,
+    backtestData: ApiBacktestDto | SignalDTO,
   ) {
     const errors = await validate(backtestData);
     if (errors.length) {
@@ -82,4 +84,5 @@ export class WebsocketClientService {
       }
     });
   }
+
 }

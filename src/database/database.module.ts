@@ -1,14 +1,16 @@
 import { MongooseModule } from "@nestjs/mongoose";
-import { BacktestDocument, BacktestSchema, Market, MarketSchema } from "./schema";
+import { BacktestSchema, MarketSchema } from "./schema";
 import { Module } from "@nestjs/common";
 import { BacktestSchemaRepository } from "./repository/backtest.repository";
 import { BacktestService } from "./service/backtest.service";
+import { SignalSchema } from "./schema/signal.schema";
 
 @Module({
     imports: [
         MongooseModule.forFeature([
-            { name: BacktestDocument.name, schema: BacktestSchema },
-            { name: Market.name, schema: MarketSchema },
+            { name: "Signal", schema: SignalSchema},
+            { name: "Backtest", schema: BacktestSchema },
+            { name: "Market", schema: MarketSchema },
         ])
     ],
     providers: [BacktestService, BacktestSchemaRepository],
