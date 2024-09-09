@@ -9,7 +9,7 @@ export class BacktestSchemaRepository {
     private readonly logger = new Logger(BacktestSchemaRepository.name);
 
     constructor(
-        @InjectModel('BacktestDocument') private readonly backtestModel: Model<BacktestDocument>,
+        @InjectModel('Backtest') private readonly backtestModel: Model<BacktestDocument>,
     ) {}
 
     async findByUid(uid: string): Promise<BacktestDocument> {

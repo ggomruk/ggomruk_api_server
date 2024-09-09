@@ -1,8 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
 interface IMarket {
-  date: Date;
+  openTime: Date;
+  closeTime: Date;
   symbol: string;
   open: number;
   high: number;
@@ -12,9 +13,12 @@ interface IMarket {
 }
 
 @Schema({ timestamps: true })
-export class Market extends Document implements IMarket {
-  @Prop({ required: true, type: Date })
-  date: Date;
+export class MarketDocument extends Document implements IMarket {
+  @Prop({ required: true, type: Date})
+  openTime: Date;
+
+  @Prop({ required: true, type: Date})
+  closeTime: Date;
 
   @Prop({ required: true, type: String })
   symbol: string;
@@ -35,6 +39,8 @@ export class Market extends Document implements IMarket {
   volume: number;
 }
 
-export const MarketSchema = SchemaFactory.createForClass<IMarket>(Market);
+export const MarketSchema = SchemaFactory.createForClass<IMarket>(MarketDocument);
+
+export const MarketModel = mongoose.model<MarketDocument>('Market', MarketSchema);
 
 MarketSchema.index({ symbol: 1, openTime: 1, closeTime: 1 }, { unique: true });
