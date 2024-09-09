@@ -40,6 +40,8 @@ export class AlgoController {
     async registerSignal(@Body(new AlgoValidationPipe()) signalDTO: SignalDTO) {
       try {
         this.logger.log(`Received Data: ${JSON.stringify(signalDTO)}`);
+        const result = await this.algoService.registerSignal(signalDTO);
+        return { ok: 1, data: result }
       } catch (err) {
         let errorResponse = err.response;
         if (err instanceof AlgoException) {
