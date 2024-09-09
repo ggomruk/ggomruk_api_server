@@ -8,17 +8,6 @@ import { DatabaseModule } from 'src/database/database.module';
 @Module({
   imports: [
     DatabaseModule,
-    ClientsModule.register([
-      {
-        name: 'ALGO_SERVICE',
-        transport: Transport.REDIS,
-        options: {
-          host: 'localhost',
-          port: 6379,
-        },
-      },
-    ]),
-    RedisModule,
   ],
   controllers: [AlgoController],
   providers: [AlgoService],

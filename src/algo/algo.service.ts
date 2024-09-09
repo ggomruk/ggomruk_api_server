@@ -12,7 +12,7 @@ export class AlgoService {
   private readonly logger = new Logger(AlgoService.name);
 
   constructor(
-    private readonly redisService: RedisService,
+    // private readonly redisService: RedisService,
     private readonly backtestService: BacktestService
   ) {}
 
@@ -31,10 +31,10 @@ export class AlgoService {
     try {
       // publish data to 'backtest' channel
       const task = E_Task.BACKTEST;
-      await this.redisService.publishBacktestData(
-        E_Task.BACKTEST,
-        JSON.stringify({ task, uid, data }),
-      );
+      // await this.redisService.publishBacktestData(
+      //   E_Task.BACKTEST,
+      //   JSON.stringify({ task, uid, data }),
+      // );
     } catch (error) {
       this.logger.error(`Error while sending backtest data: ${error.message}`);
       throw new Error(error.message);
