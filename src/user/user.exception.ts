@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 export enum UserExceptionCode {
   USER_NOT_FOUND = 1000,
-  INVALID_CREDENTIALS = 1001,
+  INVALID_OR_MISSING_CREDENTIALS = 1001,
   UNAUTHORIZED_ACCESS = 1002,
   USER_ALREADY_EXISTS = 1003,
   VALIDATION_ERROR = 1004,

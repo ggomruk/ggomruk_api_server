@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { UserDTO } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -19,5 +20,9 @@ export class UserService {
 
   async findUser(username: string): Promise<any | undefined> {
     return this.users.find((user) => user.username === username);
+  }
+
+  async createUser(user: UserDTO): Promise<boolean>{
+    return true;
   }
 }
