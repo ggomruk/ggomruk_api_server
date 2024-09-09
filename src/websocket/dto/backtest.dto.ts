@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { BacktestDTO as ApiBacktestDto } from 'src/algo/dto/backtest.dto';
+import { SignalDTO } from 'src/algo/dto/signal.dto';
 
 export class BacktestDTO {
   @IsNotEmpty()
@@ -12,9 +13,9 @@ export class BacktestDTO {
 
   @ValidateNested()
   @Type(() => ApiBacktestDto)
-  params: ApiBacktestDto;
+  params: ApiBacktestDto | SignalDTO;
 
-  constructor(task: string, uid: string, params: ApiBacktestDto) {
+  constructor(task: string, uid: string, params: ApiBacktestDto | SignalDTO) {
     this.task = task;
     this.uid = uid;
     this.params = params;
@@ -23,7 +24,7 @@ export class BacktestDTO {
   public static fromApiBacktestDto(
     task: string,
     uid: string,
-    params: ApiBacktestDto,
+    params: ApiBacktestDto | SignalDTO,
   ) {
     return new BacktestDTO(task, uid, params);
   }
