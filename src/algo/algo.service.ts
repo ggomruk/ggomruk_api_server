@@ -2,10 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { BacktestDTO } from './dto/backtest.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { E_Task } from './enum/task';
-import { RedisService } from 'src/redis/redis.service';
 import { BacktestService } from 'src/database/service/backtest.service';
 import { IBacktestParams } from 'src/database/schema/backtestParams.schema';
 import { AlgoException, AlgoExceptionCode } from './algo.exception';
+import { SignalDTO } from './dto/signal.dto';
 
 @Injectable()
 export class AlgoService {
@@ -43,5 +43,8 @@ export class AlgoService {
     return uid;
   }
 
-  async registerSignal() {}
+  async registerSignal(data: SignalDTO) {
+    const uid = uuidv4(); 
+    let signalParams = data.toSignalParams()
+  }
 }
