@@ -1,9 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { BacktestDTO as ApiBacktestDto } from 'src/algo/dto/backtest.dto';
 import * as WebSocket from 'ws';
 import { BacktestDTO as WsBacktestDTO } from './dto/backtest.dto';
 import { E_Task } from 'src/algo/enum/task';
+import { MODULE_OPTIONS_TOKEN } from './websocket.moduleDefinition';
+import { IWebsocketConfig } from './interfaces/websocketConfig.interface';
 
 @Injectable()
 export class WebsocketClientService {
@@ -11,8 +13,9 @@ export class WebsocketClientService {
   private wsClient: WebSocket;
   private reconnectAttempts = 0;
 
-  constructor() {
-    this.connect('ws://localhost:8765');
+  constructor(@Inject(MODULE_OPTIONS_TOKEN) private options: IWebsocketConfig) {
+    let { wsUrl, wsPort } = options;
+    this.connect(`${wsUrl}:${wsPort}`);
   }
 
   private connect(url: string) {
@@ -25,7 +28,7 @@ export class WebsocketClientService {
   }
 
   protected onOpen() {
-    this.logger.debug(`Connected to Wbsocket server => ws://loaclhost:8765`);
+    this.logger.debug('Connected to Websocket server => ws://localhost:8765');
   }
   protected onClose() {
     this.logger.debug(`Websocket Connection closed`);
