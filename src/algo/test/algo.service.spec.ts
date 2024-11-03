@@ -8,7 +8,7 @@ import { validBacktestBody } from "./stub/backtest.stub"
 import { IBacktestParams } from 'src/database/schema/backtestParams.schema';
 import { E_Task } from '../enum/task';
 import Redis from 'ioredis-mock';
-import { RedisService } from 'src/redis/redis.service';
+import { RedisService } from 'src/redis/cache/redis.service';
 
 describe('Algo Service', () => {
     let algoService: AlgoService;

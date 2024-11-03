@@ -32,6 +32,7 @@ export class WebsocketClientService {
     this.logger.debug('Connected to Websocket server => ws://localhost:8765');
     this.reconnectAttempts = 0;
   }
+
   protected onClose() {
     this.logger.debug(`Websocket Connection closed`);
     this.reconnectAttempts++;
@@ -45,6 +46,7 @@ export class WebsocketClientService {
       // Critical Error
     }
   }
+
   protected onMessage(data: any) {
     if (Buffer.isBuffer(data)) {
       const message = data.toString('utf-8');
@@ -66,7 +68,7 @@ export class WebsocketClientService {
       }
     }
   }
-
+  
   public async sendBacktestData(
     task: string,
     uid: string,

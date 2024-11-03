@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { AlgoService } from "../algo.service";
 import { AlgoController } from "../algo.controller";
-import { RedisService } from "src/redis/redis.service";
+import { RedisService } from "src/redis/cache/redis.service";
 import { BacktestService } from "src/database/service/backtest.service";
 import { INestApplication } from "@nestjs/common";
 import { validBacktestBody, invalidBacktestBody } from "./stub/backtest.stub";

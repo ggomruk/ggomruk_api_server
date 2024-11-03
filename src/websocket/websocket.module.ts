@@ -5,6 +5,7 @@ import { ConfigurableModuleClass } from './websocket.moduleDefinition';
 
 @Module({
   providers: [
+    WebsocketGateway,
     WebsocketClientService,
     // WebsocketGateway
   ],

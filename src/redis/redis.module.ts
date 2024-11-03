@@ -1,19 +1,19 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import redisConfig from './redis.config';
-import { redisClientFactory } from './redis.factory';
-import { RedisRepoistory } from './redis.repository';
-import { RedisService } from './redis.service';
-import { RedisSubscriberController } from './redis.subscriber';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { RedisRepoistory } from './cache/redis.repository';
+import { RedisService } from './cache/redis.service';
 import { DatabaseModule } from 'src/database/database.module';
+import { RedisCacheModule } from './cache/redis.cache.module';
+import { RedisMessageQueueModel } from './messageQueue/redis.mq.module';
 
 @Module({
   imports: [
-    ConfigModule.forFeature(redisConfig),
     DatabaseModule,
+    RedisMessageQueueModel
   ],
-  providers: [redisClientFactory, RedisRepoistory, RedisService],
-  controllers: [RedisSubscriberController],
-  exports: [RedisService],
+  // providers: [RedisRepoistory, RedisService],
+  providers: [],
+  controllers: [],
+  // exports: [RedisService],
 })
 export class RedisModule {}
