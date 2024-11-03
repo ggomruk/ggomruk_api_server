@@ -13,17 +13,17 @@ async function bootstrap() {
   app.use(helment());
   app.enableCors();
 
-  // const configService = app.get(ConfigService);
-  // const redisConfig = configService.get('redis');
+  const configService = app.get(ConfigService);
+  const redisConfig = configService.get('redis');
 
-  // app.connectMicroservice<MicroserviceOptions>({
-  //   transport: Transport.REDIS,
-  //   options: {
-  //     host: redisConfig.host,
-  //     port: redisConfig.port,
-  //   },
-  // });
-  // await app.startAllMicroservices();
-  await app.listen(3000);
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.REDIS,
+    options: {
+      host: redisConfig.host,
+      port: redisConfig.port,
+    },
+  });
+  await app.startAllMicroservices();
+  await app.listen(4000);
 }
 bootstrap();

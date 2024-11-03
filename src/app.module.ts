@@ -12,6 +12,7 @@ import * as dotenv from 'dotenv';
 // import { RedisModule } from './redis/redis.module';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { WebsocketModule } from './websocket/websocket.module';
+import { RedisModule } from './redis/redis.module';
 dotenv.config();
 
 const envValidationSchema = envValidation();
@@ -19,9 +20,6 @@ const logger = new Logger('App Module');
 
 @Module({
   imports: [
-    DevtoolsModule.register({
-      http: process.env.NODE_ENV !== 'prod',
-    }),
     ConfigModule.forRoot({
       validationSchema: envValidationSchema,
       envFilePath: '.env',
@@ -47,16 +45,16 @@ const logger = new Logger('App Module');
         limit: 10, // maximum number of requests a source is allowed to make within the specific ttl. further requests are blocked if limit is reached
       },
     ]),
-    UserModule,
-    // AuthModule,
-    AlgoModule,
-    WebsocketModule.forRootAsync({
-      useFactory: (configService: ConfigService) => {
-        const wsConfig = configService.get('websocket');
-        return wsConfig;
-      },
-      inject: [ConfigService],
-    })
+    RedisModule,
+    // UserModule,
+    // AlgoModule,
+    // WebsocketModule.forRootAsync({
+    //   useFactory: (configService: ConfigService) => {
+    //     const wsConfig = configService.get('websocket');
+    //     return wsConfig;
+    //   },
+    //   inject: [ConfigService],
+    // })
   ],
 })
 export class AppModule {}
