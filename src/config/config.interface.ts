@@ -11,9 +11,15 @@ export interface IConfig {
     port: number;
     username: string;
     password: string;
+    retry: number;
+    retryDelay: number;
   };
   jwt: {
     secret: string;
     expiresIn: string;
   };
+  websocket: {
+    wsUrl: string;
+    wsPort: string;
+  }
 }
