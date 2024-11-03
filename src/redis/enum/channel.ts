@@ -1,4 +1,0 @@
-export enum E_CHANNELS {
-  BACKTEST = 'BACKTEST',
-  SIGNAL = 'SIGNAL',
-}
