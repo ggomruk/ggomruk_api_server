@@ -10,7 +10,7 @@ export default () => ({
     username: process.env.NODE_ENV == "prod" ? process.env.REDIS_USERNAME : "",
     password: process.env.NODE_ENV == "prod" ? process.env.REDIS_PASSWORD : "",
     retry: 5,
-    retryDelay: 1000,
+    delay: 1000,
   },
   jwt: {
     secret: process.env.JWT_SECRET,

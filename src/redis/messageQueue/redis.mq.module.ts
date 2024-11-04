@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import RedisMessageQueueClient from "./redis.mq.client";
 import { ConfigService } from "@nestjs/config";
+import { MessageQueueSubscriber } from "./redis.mq.subscriber";
 
 @Module({
     imports: [],
@@ -12,8 +13,12 @@ import { ConfigService } from "@nestjs/config";
                 return new RedisMessageQueueClient(redisConfig);
             },
             inject: [ConfigService]
-        }
+        },
+        MessageQueueSubscriber
     ],
-    controllers: [],
+    exports: [
+        'REDIS_MESSAGE_QUEUE_CLIENT',
+        MessageQueueSubscriber
+    ]
 })
 export class RedisMessageQueueModel {}

@@ -12,7 +12,7 @@ export interface IConfig {
     username: string;
     password: string;
     retry: number;
-    retryDelay: number;
+    delay: number;
   };
   jwt: {
     secret: string;

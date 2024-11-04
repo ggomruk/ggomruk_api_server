@@ -6,13 +6,14 @@ import { BacktestService } from 'src/database/service/backtest.service';
 import { IBacktestParams } from 'src/database/schema/backtestParams.schema';
 import { AlgoException, AlgoExceptionCode } from './algo.exception';
 import { SignalDTO } from './dto/signal.dto';
+import RedisMessageQueueClient from 'src/redis/messageQueue/redis.mq.client';
 
 @Injectable()
 export class AlgoService {
   private readonly logger = new Logger(AlgoService.name);
 
   constructor(
-    // private readonly redisService: RedisService,
+    private readonly redisService: RedisMessageQueueClient,
     private readonly backtestService: BacktestService
   ) {}
 
@@ -31,10 +32,10 @@ export class AlgoService {
     try {
       // publish data to 'backtest' channel
       const task = E_Task.BACKTEST;
-      // await this.redisService.publishBacktestData(
-      //   E_Task.BACKTEST,
-      //   JSON.stringify({ task, uid, data }),
-      // );
+      await this.redisService.publish(
+        E_Task.BACKTEST,
+        JSON.stringify({ task, uid, data }),
+      );
     } catch (error) {
       this.logger.error(`Error while sending backtest data: ${error.message}`);
       throw new Error(error.message);
