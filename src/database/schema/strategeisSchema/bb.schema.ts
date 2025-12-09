@@ -15,5 +15,5 @@ export class BBDocument extends Document implements I_BB {
     dev: number;
 }
 
-export const BBSchema = SchemaFactory.createForClass<I_BB>(BBDocument);
+export const BBSchema = SchemaFactory.createForClass(BBDocument);
 export const BBModel = mongoose.model<BBDocument>('BB', BBSchema);

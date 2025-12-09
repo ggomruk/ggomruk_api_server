@@ -19,5 +19,5 @@ export class RSIDocument extends Document implements I_RSI {
     rsi_lower: number;
 }
 
-export const RSISchema = SchemaFactory.createForClass<I_RSI>(RSIDocument);
+export const RSISchema = SchemaFactory.createForClass(RSIDocument);
 export const RSIModel = mongoose.model<RSIDocument>('RSI', RSISchema);

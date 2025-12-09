@@ -21,6 +21,6 @@ export class ResultDocument extends Document implements IResult {
   leveragedPerformance: LeveragedPerformanceDocument;
 }
 
-export const ResultSchema = SchemaFactory.createForClass<IResult>(ResultDocument);
+export const ResultSchema = SchemaFactory.createForClass(ResultDocument);
 
 export const ResultModel = mongoose.model<ResultDocument>('Result', ResultSchema);

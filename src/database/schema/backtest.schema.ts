@@ -21,7 +21,7 @@ export class BacktestDocument extends Document implements IBacktest {
     result: ResultDocument;
 }
 
-export const BacktestSchema = SchemaFactory.createForClass<IBacktest>(BacktestDocument);
+export const BacktestSchema = SchemaFactory.createForClass(BacktestDocument);
 BacktestSchema.index({ createdAt: -1 });
 
 export const BacktestModel = mongoose.model<BacktestDocument>('Backtest', BacktestSchema);

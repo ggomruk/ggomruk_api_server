@@ -23,5 +23,5 @@ export class RVDocument extends Document implements I_RV {
     volume_thresh_high: number;
 }
 
-export const RVSchema = SchemaFactory.createForClass<I_RV>(RVDocument);
+export const RVSchema = SchemaFactory.createForClass(RVDocument);
 export const RVModel = mongoose.model<RVDocument>('RV', RVSchema);

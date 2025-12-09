@@ -19,5 +19,5 @@ export class MACDDocument extends Document implements I_MACD {
     signal_mw: number;
 }
 
-export const MACDSchema = SchemaFactory.createForClass<I_MACD>(MACDDocument);
+export const MACDSchema = SchemaFactory.createForClass(MACDDocument);
 export const MACDModel = mongoose.model<MACDDocument>('MACD', MACDSchema);

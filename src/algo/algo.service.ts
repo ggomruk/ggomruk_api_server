@@ -7,6 +7,8 @@ import { IBacktestParams } from 'src/database/schema/backtestParams.schema';
 import { AlgoException, AlgoExceptionCode } from './algo.exception';
 import { SignalDTO } from './dto/signal.dto';
 import RedisMessageQueueClient from 'src/redis/messageQueue/redis.mq.client';
+import { BacktestPubSubService } from 'src/redis/messageQueue/backtest-pubsub.service';
+import { WebsocketGateway } from 'src/websocket/websocketGateway';
 
 @Injectable()
 export class AlgoService {
@@ -14,34 +16,53 @@ export class AlgoService {
 
   constructor(
     private readonly redisService: RedisMessageQueueClient,
-    private readonly backtestService: BacktestService
+    private readonly backtestService: BacktestService,
+    private readonly backtestPubSub: BacktestPubSubService,
+    private readonly websocketGateway: WebsocketGateway
   ) {}
 
-  async runBacktest(data: BacktestDTO) {
-    const uid = uuidv4();
-    let backtestParams : IBacktestParams = data.toBacktestParams();
+  async runBacktest(data: BacktestDTO, userId: string) {
+    const backtestId = uuidv4();
+    let backtestParams: IBacktestParams = data.toBacktestParams();
 
     // Insert backtest data if not exists
     try {
-      await this.backtestService.saveWithUidAndBacktestParams(uid, backtestParams);
-    } catch (error){
-      this.logger.error(`Failed to save backtest data: ${uid}`);
+      await this.backtestService.saveWithUidAndBacktestParams(backtestId, backtestParams);
+      this.logger.log(`Saved backtest ${backtestId} to database`);
+    } catch (error) {
+      this.logger.error(`Failed to save backtest data: ${backtestId}`);
       throw new AlgoException(AlgoExceptionCode.DUPLICATE_UID, 'Duplicate backtest exists');
     }
     
     try {
-      // publish data to 'backtest' channel
-      const task = E_Task.BACKTEST;
-      await this.redisService.publish(
-        E_Task.BACKTEST,
-        JSON.stringify({ task, uid, data }),
-      );
+      // Publish backtest task to analytics server via Redis Pub/Sub
+      await this.backtestPubSub.publishTask({
+        backtestId,
+        userId,
+        params: {
+          symbol: backtestParams.symbol,
+          interval: backtestParams.interval,
+          startDate: backtestParams.startDate.toISOString(),
+          endDate: backtestParams.endDate.toISOString(),
+          strategies: backtestParams.strategies as any, // Convert strategies to string array
+          strategyParams: backtestParams as any,
+        },
+      });
+
+      this.logger.log(`Published backtest task ${backtestId} to Redis`);
+
+      // Notify client via WebSocket that backtest has started
+      this.websocketGateway.emitBacktestStarted(userId, backtestId, {
+        status: 'pending',
+        params: backtestParams,
+      });
+
     } catch (error) {
       this.logger.error(`Error while sending backtest data: ${error.message}`);
       throw new Error(error.message);
     }
 
-    return uid;
+    return backtestId;
   }
 
   async registerSignal(data: SignalDTO) {

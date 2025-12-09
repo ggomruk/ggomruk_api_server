@@ -19,5 +19,5 @@ export class SMADocument extends Document implements I_SMA {
     sma_l: number;
 }
 
-export const SMASchema = SchemaFactory.createForClass<I_SMA>(SMADocument);
+export const SMASchema = SchemaFactory.createForClass(SMADocument);
 export const SMAModel = mongoose.model<SMADocument>('SMA', SMASchema);

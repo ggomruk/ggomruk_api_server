@@ -35,6 +35,6 @@ export class LeveragedPerformanceDocument extends Document implements ILeveraged
     finalUsdtLeveraged: number;
 }
 
-export const LeveragedPerformanceSchema = SchemaFactory.createForClass<ILeveragedPerformance>(LeveragedPerformanceDocument);
+export const LeveragedPerformanceSchema = SchemaFactory.createForClass(LeveragedPerformanceDocument);
 
 export const LeveragedPerformanceModel = mongoose.model<LeveragedPerformanceDocument>('LeveragedPerformance', LeveragedPerformanceSchema);

@@ -47,6 +47,6 @@ export class PerformanceDocument extends Document implements IPerformance {
     finalUsdt: number;
 }
 
-export const PerformanceSchema = SchemaFactory.createForClass<IPerformance>(PerformanceDocument);
+export const PerformanceSchema = SchemaFactory.createForClass(PerformanceDocument);
 
 export const PerformanceModel = mongoose.model<PerformanceDocument>('Performance', PerformanceSchema);

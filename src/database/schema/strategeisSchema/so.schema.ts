@@ -15,5 +15,5 @@ export class SODocument extends Document implements I_SO {
     d_mw: number;
 }
 
-export const SOSchema = SchemaFactory.createForClass<I_SO>(SODocument);
+export const SOSchema = SchemaFactory.createForClass(SODocument);
 export const SOModel = mongoose.model<SODocument>('SO', SOSchema);

@@ -21,6 +21,6 @@ export class SignalDocument extends Document implements ISignalParams {
     strategies: StrategiesDocument;
 }
 
-export const SignalSchema = SchemaFactory.createForClass<ISignalParams>(SignalDocument);
+export const SignalSchema = SchemaFactory.createForClass(SignalDocument);
 
 export const SingalModel = mongoose.model<SignalDocument>('Signal', SignalSchema);

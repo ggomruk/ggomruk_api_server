@@ -39,7 +39,7 @@ export class MarketDocument extends Document implements IMarket {
   volume: number;
 }
 
-export const MarketSchema = SchemaFactory.createForClass<IMarket>(MarketDocument);
+export const MarketSchema = SchemaFactory.createForClass(MarketDocument);
 
 export const MarketModel = mongoose.model<MarketDocument>('Market', MarketSchema);
 

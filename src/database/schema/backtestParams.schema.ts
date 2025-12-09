@@ -40,6 +40,6 @@ export class BacktestParamsDocument extends Document implements IBacktestParams 
     strategies: StrategiesDocument;
 }
 
-export const BacktestParamsSchema = SchemaFactory.createForClass<IBacktestParams>(BacktestParamsDocument);
+export const BacktestParamsSchema = SchemaFactory.createForClass(BacktestParamsDocument);
 
 export const BacktestModel = mongoose.model<BacktestParamsDocument>('BacktestParams', BacktestParamsSchema);

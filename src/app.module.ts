@@ -46,15 +46,10 @@ const logger = new Logger('App Module');
       },
     ]),
     RedisModule,
-    // UserModule,
+    WebsocketModule,
+    UserModule,
+    AuthModule,
     AlgoModule,
-    // WebsocketModule.forRootAsync({
-    //   useFactory: (configService: ConfigService) => {
-    //     const wsConfig = configService.get('websocket');
-    //     return wsConfig;
-    //   },
-    //   inject: [ConfigService],
-    // })
   ],
 })
 export class AppModule {}
