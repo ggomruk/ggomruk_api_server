@@ -10,6 +10,9 @@ export interface IBacktestService {
     findByUidAndCheckResult(uid: string): Promise<BacktestDocument|null>;
     saveWithUidAndBacktestParams(uid: string, params: IBacktestParams): Promise<BacktestDocument>;
     checkAndUpdateResultIfUidExists(uid: string, result: any): Promise<BacktestDocument>;
+    getUserBacktests(userId: string, limit?: number): Promise<BacktestDocument[]>;
+    getBacktestById(backtestId: string): Promise<BacktestDocument|null>;
+    deleteBacktest(backtestId: string): Promise<boolean>;
 }
 
 @Injectable()
@@ -48,5 +51,17 @@ export class BacktestService implements IBacktestService {
             // Record found and result already exists
             throw new AlgoException(AlgoExceptionCode.BACKTEST_RESULT_ALREADY_EXISTS, `Backtest with uid ${uid} already has a result`);
         }
+    }
+
+    async getUserBacktests(userId: string, limit: number = 50): Promise<BacktestDocument[]> {
+        return await this.backtestRepository.findByUserId(userId, limit);
+    }
+
+    async getBacktestById(backtestId: string): Promise<BacktestDocument|null> {
+        return await this.backtestRepository.findById(backtestId);
+    }
+
+    async deleteBacktest(backtestId: string): Promise<boolean> {
+        return await this.backtestRepository.deleteById(backtestId);
     }
 }

@@ -78,4 +78,51 @@ export class AlgoController {
     return { ok: 1, message: 'Get results endpoint - to be implemented' };
   }
 
+  @Get('backtests')
+  async getUserBacktests(@Request() req) {
+    try {
+      const userId = req.user.userId;
+      this.logger.log(`User ${userId} fetching backtest history`);
+      
+      const backtests = await this.algoService.getUserBacktests(userId);
+      
+      return { 
+        ok: 1, 
+        data: backtests 
+      };
+    } catch (err) {
+      this.logger.error(`Failed to fetch backtests: ${err.message}`);
+      return { ok: 0, error: err.message };
+    }
+  }
+
+  @Get('backtest/:id')
+  async getBacktestById(@Request() req) {
+    try {
+      const userId = req.user.userId;
+      const backtestId = req.params.id;
+      
+      this.logger.log(`User ${userId} fetching backtest ${backtestId}`);
+      
+      const backtest = await this.algoService.getBacktestById(backtestId);
+      
+      if (!backtest) {
+        return { ok: 0, error: 'Backtest not found' };
+      }
+
+      // Verify the backtest belongs to the user
+      if (backtest.uid !== userId) {
+        return { ok: 0, error: 'Unauthorized' };
+      }
+      
+      return { 
+        ok: 1, 
+        data: backtest 
+      };
+    } catch (err) {
+      this.logger.error(`Failed to fetch backtest: ${err.message}`);
+      return { ok: 0, error: err.message };
+    }
+  }
+
 }

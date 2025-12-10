@@ -69,4 +69,48 @@ export class AlgoService {
     const uid = uuidv4(); 
     let signalParams = data.toSignalParams()
   }
+
+  async getUserBacktests(userId: string, limit: number = 50) {
+    try {
+      const backtests = await this.backtestService.getUserBacktests(userId, limit);
+      
+      // Transform to API response format
+      return backtests.map(bt => ({
+        backtestId: bt._id,
+        userId: bt.uid,
+        status: bt.result ? 'completed' : 'pending',
+        params: bt.backtestParams,
+        result: bt.result,
+        createdAt: (bt as any).createdAt,
+        completedAt: bt.result ? (bt as any).updatedAt : null,
+      }));
+    } catch (error) {
+      this.logger.error(`Failed to get user backtests: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async getBacktestById(backtestId: string) {
+    try {
+      const backtest = await this.backtestService.getBacktestById(backtestId);
+      
+      if (!backtest) {
+        return null;
+      }
+
+      return {
+        backtestId: backtest._id,
+        userId: backtest.uid,
+        uid: backtest.uid,
+        status: backtest.result ? 'completed' : 'pending',
+        params: backtest.backtestParams,
+        result: backtest.result,
+        createdAt: (backtest as any).createdAt,
+        completedAt: backtest.result ? (backtest as any).updatedAt : null,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to get backtest by ID: ${error.message}`);
+      throw error;
+    }
+  }
 }

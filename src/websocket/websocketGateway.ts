@@ -75,7 +75,11 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
         if (!this.userSockets.has(userId)) {
             this.userSockets.set(userId, new Set());
         }
-        this.userSockets.get(userId).add(client.id);
+        
+        const userSockets = this.userSockets.get(userId);
+        if (userSockets) {
+            userSockets.add(client.id);
+        }
 
         this.logger.log(`Client ${client.id} subscribed to backtest updates for user ${userId}`);
         client.emit('backtest:subscribed', { userId, message: 'Subscribed successfully' });
@@ -92,9 +96,12 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
         const { userId } = data;
         
         if (this.userSockets.has(userId)) {
-            this.userSockets.get(userId).delete(client.id);
-            if (this.userSockets.get(userId).size === 0) {
-                this.userSockets.delete(userId);
+            const userSockets = this.userSockets.get(userId);
+            if (userSockets) {
+                userSockets.delete(client.id);
+                if (userSockets.size === 0) {
+                    this.userSockets.delete(userId);
+                }
             }
         }
 
@@ -129,6 +136,12 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
      * Broadcast message to all sockets connected for a specific user
      */
     private broadcastToUser(userId: string, event: string, data: any) {
+        // Check if server is initialized
+        if (!this.server || !this.server.sockets || !this.server.sockets.sockets) {
+            this.logger.warn(`WebSocket server not initialized, cannot broadcast ${event} to user ${userId}`);
+            return;
+        }
+
         const sockets = this.userSockets.get(userId);
         
         if (!sockets || sockets.size === 0) {

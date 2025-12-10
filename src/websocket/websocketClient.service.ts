@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { BacktestDTO as ApiBacktestDto } from 'src/algo/dto/backtest.dto';
-import * as WebSocket from 'ws';
+import WebSocket from 'ws';
 import { BacktestDTO as WsBacktestDTO } from './dto/backtest.dto';
 import { E_Task } from 'src/algo/enum/task';
 import { MODULE_OPTIONS_TOKEN } from './websocket.moduleDefinition';

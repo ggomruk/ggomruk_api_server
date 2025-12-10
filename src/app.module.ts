@@ -3,8 +3,6 @@ import { AlgoModule } from './algo/algo.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import devConfig from './config/dev.config';
-import prodConfig from './config/prod.config';
 import envValidation from './config/config.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -13,6 +11,7 @@ import * as dotenv from 'dotenv';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { WebsocketModule } from './websocket/websocket.module';
 import { RedisModule } from './redis/redis.module';
+import configuration from './config'
 dotenv.config();
 
 const envValidationSchema = envValidation();
@@ -25,11 +24,11 @@ const logger = new Logger('App Module');
       envFilePath: '.env',
       cache: true,
       isGlobal: true,
-      load: [process.env.NODE_ENV === 'prod' ? prodConfig : devConfig],
+      load: configuration
     }),
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => {
-        const dbConfig = configService.get('database');
+        const dbConfig = configService.get('db');
         const uri =
           process.env.NODE_ENV === 'prod'
             ? `mongodb://${dbConfig.username}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}`
@@ -41,9 +40,20 @@ const logger = new Logger('App Module');
     }),
     ThrottlerModule.forRoot([
       {
-        ttl: 60 * 1000, // duration of counter. counter resets after 1 minute
-        limit: 10, // maximum number of requests a source is allowed to make within the specific ttl. further requests are blocked if limit is reached
-      },
+				name: 'short',
+				ttl: 1000,
+				limit: 3,
+			},
+			{
+				name: 'medium',
+				ttl: 10000,
+				limit: 20,
+			},
+			{
+				name: 'long',
+				ttl: 60000,
+				limit: 100,
+			},
     ]),
     RedisModule,
     WebsocketModule,
