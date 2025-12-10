@@ -58,24 +58,33 @@ export class BacktestPubSubService implements OnModuleInit {
   constructor(private configService: ConfigService) {
     const redisConfig = this.configService.get('redis');
     
+    // Debug: Log Redis configuration
+    console.log('Redis Config:', {
+      host: redisConfig.host,
+      port: redisConfig.port,
+      hasPassword: !!redisConfig.password,
+      passwordLength: redisConfig.password?.length || 0,
+      password: redisConfig.password
+    });
+    
+    // Build Redis options - only include password if it exists
+    const redisOptions: any = {
+      host: redisConfig.host,
+      port: redisConfig.port,
+      retryStrategy: (times) => {
+        const delay = Math.min(times * 50, 2000);
+        return delay;
+      },
+    };
+    
+    // Only add password if it's not empty
+    if (redisConfig.password && redisConfig.password.trim() !== '') {
+      redisOptions.password = redisConfig.password;
+    }
+    
     // Create separate connections for pub and sub
-    this.publisher = new Redis({
-      host: redisConfig.host,
-      port: redisConfig.port,
-      retryStrategy: (times) => {
-        const delay = Math.min(times * 50, 2000);
-        return delay;
-      },
-    });
-
-    this.subscriber = new Redis({
-      host: redisConfig.host,
-      port: redisConfig.port,
-      retryStrategy: (times) => {
-        const delay = Math.min(times * 50, 2000);
-        return delay;
-      },
-    });
+    this.publisher = new Redis(redisOptions);
+    this.subscriber = new Redis(redisOptions);
 
     this.setupErrorHandlers();
   }

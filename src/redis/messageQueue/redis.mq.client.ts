@@ -9,16 +9,21 @@ export default class RedisMessageQueueClient {
     private redisClient: Redis;
 
     constructor(config: ConfigService) {
-        this.redisClient = new Redis({
+        const redisOptions: any = {
             host: config['host'],
             port: config['port'],
-            username: config['username'],
-            password: config['password'],
             retryStrategy: (times) => {
                 const delay = Math.min(times * 50, config['delay']);
                 return delay;
             }
-        })
+        };
+        
+        // Only add password if it exists and is not empty
+        if (config['password'] && config['password'].trim() !== '') {
+            redisOptions.password = config['password'];
+        }
+        
+        this.redisClient = new Redis(redisOptions);
     }
 
     private addTimestamp(message: string) {

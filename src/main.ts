@@ -36,12 +36,19 @@ async function bootstrap() {
   });
 
 
+  const redisOptions: any = {
+    host: redisConfig.host,
+    port: redisConfig.port,
+  };
+  
+  // Only add password if it exists and is not empty
+  if (redisConfig.password && redisConfig.password.trim() !== '') {
+    redisOptions.password = redisConfig.password;
+  }
+  
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.REDIS,
-    options: {
-      host: redisConfig.host,
-      port: redisConfig.port,
-    },
+    options: redisOptions,
   });
   await app.startAllMicroservices();
   await app.listen(4000);
