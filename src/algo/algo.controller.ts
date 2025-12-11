@@ -16,7 +16,7 @@ import { AlgoService } from './algo.service';
 import { SignalDTO } from './dto/signal.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
-@Controller('/api/algo')
+@Controller('algo')
 @UseFilters(AlgoExceptionFilter)
 @UseGuards(JwtAuthGuard) // Protect all algo routes with JWT authentication
 export class AlgoController {

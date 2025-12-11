@@ -1,30 +1,12 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { ClientProxy, ClientProxyFactory, Transport } from "@nestjs/microservices";
+import { Injectable, Logger, Inject } from "@nestjs/common";
 import Redis from "ioredis";
+import { REDIS_PUBLISHER } from '../redis.provider';
 
 @Injectable()
 export default class RedisMessageQueueClient {
     private readonly logger = new Logger(RedisMessageQueueClient.name);
-    private redisClient: Redis;
 
-    constructor(config: ConfigService) {
-        const redisOptions: any = {
-            host: config['host'],
-            port: config['port'],
-            retryStrategy: (times) => {
-                const delay = Math.min(times * 50, config['delay']);
-                return delay;
-            }
-        };
-        
-        // Only add password if it exists and is not empty
-        if (config['password'] && config['password'].trim() !== '') {
-            redisOptions.password = config['password'];
-        }
-        
-        this.redisClient = new Redis(redisOptions);
-    }
+    constructor(@Inject(REDIS_PUBLISHER) private readonly redisClient: Redis) {}
 
     private addTimestamp(message: string) {
         const metadata = { timestamp: new Date().toISOString() };

@@ -1,6 +1,6 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
 import Redis from 'ioredis';
+import { REDIS_PUBLISHER, REDIS_SUBSCRIBER } from '../redis.provider';
 
 export interface BacktestTaskMessage {
   backtestId: string;
@@ -39,8 +39,6 @@ export interface BacktestCompleteMessage {
 @Injectable()
 export class BacktestPubSubService implements OnModuleInit {
   private readonly logger = new Logger(BacktestPubSubService.name);
-  private publisher: Redis;
-  private subscriber: Redis;
 
   // Channel names
   private readonly CHANNELS = {
@@ -55,37 +53,10 @@ export class BacktestPubSubService implements OnModuleInit {
   private completeCallbacks: ((data: BacktestCompleteMessage) => void)[] = [];
   private errorCallbacks: ((data: BacktestCompleteMessage) => void)[] = [];
 
-  constructor(private configService: ConfigService) {
-    const redisConfig = this.configService.get('redis');
-    
-    // Debug: Log Redis configuration
-    console.log('Redis Config:', {
-      host: redisConfig.host,
-      port: redisConfig.port,
-      hasPassword: !!redisConfig.password,
-      passwordLength: redisConfig.password?.length || 0,
-      password: redisConfig.password
-    });
-    
-    // Build Redis options - only include password if it exists
-    const redisOptions: any = {
-      host: redisConfig.host,
-      port: redisConfig.port,
-      retryStrategy: (times) => {
-        const delay = Math.min(times * 50, 2000);
-        return delay;
-      },
-    };
-    
-    // Only add password if it's not empty
-    if (redisConfig.password && redisConfig.password.trim() !== '') {
-      redisOptions.password = redisConfig.password;
-    }
-    
-    // Create separate connections for pub and sub
-    this.publisher = new Redis(redisOptions);
-    this.subscriber = new Redis(redisOptions);
-
+  constructor(
+    @Inject(REDIS_PUBLISHER) private readonly publisher: Redis,
+    @Inject(REDIS_SUBSCRIBER) private readonly subscriber: Redis,
+  ) {
     this.setupErrorHandlers();
   }
 

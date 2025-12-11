@@ -1,9 +1,19 @@
 import { Module } from "@nestjs/common";
+import { RedisClientProvider } from '../redis.provider';
+import { RedisRepoistory } from './redis.repository';
+import { RedisService } from './redis.service';
 
 @Module({
     imports: [],
-    providers: [],
+    providers: [
+        RedisClientProvider,
+        RedisRepoistory,
+        RedisService
+    ],
     controllers: [],
-    exports: []
+    exports: [
+        RedisService,
+        RedisRepoistory
+    ]
 })
 export class RedisCacheModule {}

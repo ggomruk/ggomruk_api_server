@@ -14,7 +14,7 @@ import { UserDTO } from './dto/user.dto';
 import { UserException } from './user.exception';
 import { UserService } from './user.service';
 
-@Controller('/api/user')
+@Controller('user')
 @UseFilters(UserExceptionFilter)
 export class UserController {
   private readonly logger = new Logger(UserController.name);

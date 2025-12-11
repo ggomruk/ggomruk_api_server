@@ -1,6 +1,5 @@
-import { Logger, Module } from '@nestjs/common';
+import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AlgoModule } from './algo/algo.module';
-import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import envValidation from './config/config.validation';
@@ -12,6 +11,9 @@ import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { WebsocketModule } from './websocket/websocket.module';
 import { RedisModule } from './redis/redis.module';
 import configuration from './config'
+import { LoggerMiddleware } from './middleware';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './guards';
 dotenv.config();
 
 const envValidationSchema = envValidation();
@@ -29,11 +31,12 @@ const logger = new Logger('App Module');
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => {
         const dbConfig = configService.get('db');
-        const uri =
-          process.env.NODE_ENV === 'prod'
-            ? `mongodb://${dbConfig.username}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}`
-            : `mongodb://${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}`;
-        logger.debug('MongoDB URI: ' + uri);
+        // Always use authentication if credentials are provided
+        const hasCredentials = dbConfig.username && dbConfig.password;
+        const uri = hasCredentials
+          ? `mongodb://${dbConfig.username}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}?authSource=admin`
+          : `mongodb://${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}`;
+        logger.debug('MongoDB URI: ' + uri.replace(/:([^:@]+)@/, ':****@')); // Hide password in logs
         return { uri };
       },
       inject: [ConfigService],
@@ -57,9 +60,18 @@ const logger = new Logger('App Module');
     ]),
     RedisModule,
     WebsocketModule,
-    UserModule,
     AuthModule,
     AlgoModule,
   ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard
+    }
+  ]
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

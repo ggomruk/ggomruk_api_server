@@ -18,13 +18,15 @@ import { LoginDTO } from './dto/login.dto';
 import { Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { Public } from './decorators/public.decorator';
 
-@Controller('/api/auth')
+@Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
   constructor(private authService: AuthService) {}
 
+  @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
@@ -38,6 +40,7 @@ export class AuthController {
     }
   }
 
+  @Public()
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   async signup(@Body() userDto: UserDTO) {
@@ -60,12 +63,14 @@ export class AuthController {
     return { ok: 1, message: 'Logged out successfully' };
   }
 
+  @Public()
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   async googleAuth(@Request() req) {
     // Guard redirects to Google
   }
 
+  @Public()
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@Request() req, @Res() res: Response) {
