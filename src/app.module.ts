@@ -13,7 +13,7 @@ import { RedisModule } from './redis/redis.module';
 import configuration from './config'
 import { LoggerMiddleware } from './middleware';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './guards';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 dotenv.config();
 
 const envValidationSchema = envValidation();
