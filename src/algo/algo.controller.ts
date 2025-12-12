@@ -11,7 +11,6 @@ import {
 import { AlgoException, AlgoExceptionCode } from './algo.exception';
 import { AlgoExceptionFilter } from './algo.exceptionFilter';
 import { BacktestDTO } from './dto/backtest.dto';
-import { AlgoValidationPipe } from './algo.pipe';
 import { AlgoService } from './algo.service';
 import { SignalDTO } from './dto/signal.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -24,9 +23,10 @@ export class AlgoController {
 
   constructor(private readonly algoService: AlgoService) {}
 
+  // /api/v1/algo/backtest
   @Post('backtest')
   async registerAlgorithm(
-    @Body(new AlgoValidationPipe()) backtestDTO: BacktestDTO,
+    @Body() backtestDTO: BacktestDTO,
     @Request() req,
   ) {
     try {
@@ -52,9 +52,10 @@ export class AlgoController {
     }
   }
 
+  // /api/v1/algo/signal
   @Post('signal')
   async registerSignal(
-    @Body(new AlgoValidationPipe()) signalDTO: SignalDTO,
+    @Body() signalDTO: SignalDTO,
     @Request() req,
   ) {
     try {
@@ -71,6 +72,7 @@ export class AlgoController {
     }
   }
 
+  // /api/v1/algo/result
   @Get('result')
   getTestResult(@Request() req) {
     const userId = req.user.userId;
@@ -78,6 +80,7 @@ export class AlgoController {
     return { ok: 1, message: 'Get results endpoint - to be implemented' };
   }
 
+  // /api/v1/algo/backtests
   @Get('backtests')
   async getUserBacktests(@Request() req) {
     try {
@@ -96,6 +99,7 @@ export class AlgoController {
     }
   }
 
+  // /api/v1/algo/backtest/:id
   @Get('backtest/:id')
   async getBacktestById(@Request() req) {
     try {
