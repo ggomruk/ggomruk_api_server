@@ -42,9 +42,9 @@ import { ConfigService } from '@nestjs/config';
     PassportModule,
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get('auth.jwtAccessSecret') || process.env.JWT_SECRET || 'dev-secret-key',
+        secret: configService.get<string>('auth.jwtAccessSecret'),
         signOptions: { 
-          expiresIn: configService.get('auth.jwtAccessExpiresIn') || process.env.JWT_EXPIRES_IN || '7d'
+          expiresIn: configService.get<string>('auth.jwtAccessExpiresIn')
         },
       }),
       inject: [ConfigService],

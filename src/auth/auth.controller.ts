@@ -98,4 +98,21 @@ export class AuthController {
   async verifyToken(@Request() req) {
     return { ok: 1, valid: true, user: req.user };
   }
+
+  @Public()
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body('refresh_token') refreshToken: string) {
+    try {
+      if (!refreshToken) {
+        return { ok: 0, error: 'Refresh token is required' };
+      }
+      
+      const result = await this.authService.refreshAccessToken(refreshToken);
+      return { ok: 1, data: result };
+    } catch (error) {
+      this.logger.error(`Refresh token error: ${error.message}`);
+      return { ok: 0, error: error.message };
+    }
+  }
 }

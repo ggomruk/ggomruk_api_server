@@ -1,5 +1,6 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/user/user.schema';
 import { UserDTO } from 'src/user/dto/user.dto';
@@ -11,6 +12,7 @@ export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async validateUser(username: string, password: string): Promise<any> {
@@ -37,12 +39,20 @@ export class AuthService {
       email: user.email 
     };
     
+    // Generate access token (uses JwtModule config)
     const access_token = this.jwtService.sign(payload);
+    
+    // Generate refresh token with different secret and longer expiration
+    const refresh_token = this.jwtService.sign(payload, {
+      secret: this.configService.get<string>('auth.jwtRefreshSecret'),
+      expiresIn: this.configService.get<string>('auth.jwtRefreshExpiresIn'),
+    });
     
     this.logger.log(`User logged in: ${user.username}`);
     
     return {
       access_token,
+      refresh_token,
       user: {
         id: user._id,
         username: user.username,
@@ -87,6 +97,39 @@ export class AuthService {
     } catch (error) {
       this.logger.error(`Token validation error: ${error.message}`);
       return null;
+    }
+  }
+
+  async refreshAccessToken(refreshToken: string) {
+    try {
+      // Verify refresh token with refresh secret
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: this.configService.get<string>('auth.jwtRefreshSecret'),
+      });
+
+      // Find user to ensure they still exist
+      const user = await this.userService.findUser(payload.username);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      // Generate new access token
+      const newPayload = {
+        username: payload.username,
+        sub: payload.sub,
+        email: payload.email,
+      };
+
+      const access_token = this.jwtService.sign(newPayload);
+
+      this.logger.log(`Access token refreshed for user: ${payload.username}`);
+
+      return {
+        access_token,
+      };
+    } catch (error) {
+      this.logger.error(`Refresh token error: ${error.message}`);
+      throw new UnauthorizedException('Invalid refresh token');
     }
   }
 }
