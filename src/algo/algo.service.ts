@@ -44,7 +44,10 @@ export class AlgoService {
           interval: backtestParams.interval,
           startDate: backtestParams.startDate.toISOString(),
           endDate: backtestParams.endDate.toISOString(),
-          strategies: backtestParams.strategies as any, // Convert strategies to string array
+          leverage: backtestParams.leverage,
+          tc: backtestParams.commission, // Python expects 'tc' field
+          usdt: backtestParams.usdt,
+          strategies: backtestParams.strategies as any,
           strategyParams: backtestParams as any,
         },
       });

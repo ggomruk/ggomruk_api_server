@@ -7,16 +7,16 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { GeneralResponse } from '../common/dto/general-response.dto';
-import { ErrorCode } from '../common/enums/error-code.enum';
+import { GeneralResponse } from '../dto/general-response.dto';
+import { ErrorCode } from '../enums/error-code.enum';
 
 /**
- * All Exceptions Filter
- * Catches all unhandled exceptions and returns them in GeneralResponse format
+ * Global exception filter that catches all exceptions
+ * and returns them in the standardized GeneralResponse format
  */
 @Catch()
-export class AllExceptionsFilter implements ExceptionFilter {
-  private readonly logger = new Logger(AllExceptionsFilter.name);
+export class GlobalExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(GlobalExceptionFilter.name);
 
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();

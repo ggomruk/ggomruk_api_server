@@ -41,16 +41,25 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
     }
 
     handleConnection(client: Socket, ...args: any[]) {
-        this.logger.log(`Client connected: ${client.id}`);
+        this.logger.log(`✅ Client connected: ${client.id} from ${client.handshake.address}`);
     }
     
     handleDisconnect(client: Socket) {
-        this.logger.log(`Client disconnected: ${client.id}`);
+        // Find which user this socket belonged to
+        let userId: string | null = null;
+        this.userSockets.forEach((sockets, uid) => {
+            if (sockets.has(client.id)) {
+                userId = uid;
+            }
+        });
+
+        this.logger.log(`❌ Client disconnected: ${client.id}${userId ? ` (user: ${userId})` : ''}`);
         
         // Remove client from all user subscriptions
         this.userSockets.forEach((sockets, userId) => {
             sockets.delete(client.id);
             if (sockets.size === 0) {
+                this.logger.debug(`No more sockets for user ${userId}`);
                 this.userSockets.delete(userId);
             }
         });
@@ -67,6 +76,7 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
         const { userId } = data;
         
         if (!userId) {
+            this.logger.warn(`Client ${client.id} tried to subscribe without userId`);
             client.emit('error', { message: 'userId is required' });
             return;
         }
@@ -81,8 +91,9 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
             userSockets.add(client.id);
         }
 
-        this.logger.log(`Client ${client.id} subscribed to backtest updates for user ${userId}`);
-        client.emit('backtest:subscribed', { userId, message: 'Subscribed successfully' });
+        const totalSockets = userSockets?.size || 0;
+        this.logger.log(`📡 Client ${client.id} subscribed to backtest updates for user ${userId} (${totalSockets} total sockets)`);
+        client.emit('backtest:subscribed', { userId, socketId: client.id, message: 'Subscribed successfully' });
     }
 
     /**
@@ -137,7 +148,7 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
      */
     private broadcastToUser(userId: string, event: string, data: any) {
         // Check if server is initialized
-        if (!this.server || !this.server.sockets || !this.server.sockets.sockets) {
+        if (!this.server) {
             this.logger.warn(`WebSocket server not initialized, cannot broadcast ${event} to user ${userId}`);
             return;
         }
@@ -145,18 +156,24 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
         const sockets = this.userSockets.get(userId);
         
         if (!sockets || sockets.size === 0) {
-            this.logger.debug(`No connected clients for user ${userId}`);
+            this.logger.debug(`No connected clients for user ${userId} - backtest will continue in background`);
             return;
         }
 
-        sockets.forEach(socketId => {
-            const socket = this.server.sockets.sockets.get(socketId);
-            if (socket) {
-                socket.emit(event, data);
+        // Just emit to all socket IDs - Socket.IO will handle non-existent sockets gracefully
+        const socketIds = Array.from(sockets);
+        this.logger.log(`📤 Broadcasting ${event} to ${socketIds.length} socket(s) for user ${userId}: [${socketIds.join(', ')}]`);
+        
+        socketIds.forEach(socketId => {
+            try {
+                // Socket.IO's to() method handles non-existent sockets gracefully
+                this.server.to(socketId).emit(event, data);
+            } catch (error) {
+                this.logger.error(`❌ Error emitting to socket ${socketId}: ${error.message}`);
             }
         });
 
-        this.logger.debug(`Broadcasted ${event} to ${sockets.size} clients for user ${userId}`);
+        this.logger.log(`✅ Broadcasted ${event} to user ${userId}`);
     }
 
     /**

@@ -54,7 +54,7 @@ export class AuthService {
       access_token,
       refresh_token,
       user: {
-        id: user._id,
+        userId: user._id.toString(),
         username: user.username,
         email: user.email,
         displayName: user.displayName,

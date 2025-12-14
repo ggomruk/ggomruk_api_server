@@ -10,6 +10,9 @@ export interface BacktestTaskMessage {
     interval: string;
     startDate: string;
     endDate: string;
+    leverage: number;
+    tc: number;
+    usdt: number;
     strategies: string[];
     strategyParams: any;
   };

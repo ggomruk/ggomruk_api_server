@@ -19,6 +19,7 @@ import { Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { Public } from './decorators/public.decorator';
+import { GeneralResponse } from 'src/common/dto/general-response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -31,26 +32,18 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   async login(@Request() req, @Body() loginDto: LoginDTO) {
-    try {
-      const result = await this.authService.login(req.user);
-      return { ok: 1, data: result };
-    } catch (error) {
-      this.logger.error(`Login error: ${error.message}`);
-      return { ok: 0, error: error.message };
-    }
+    const result = await this.authService.login(req.user);
+    this.logger.log(`User logged in successfully: ${req.user.username}`);
+    return GeneralResponse.success(result, 'Login successful');
   }
 
   @Public()
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   async signup(@Body() userDto: UserDTO) {
-    try {
-      const result = await this.authService.signup(userDto);
-      return { ok: 1, data: result };
-    } catch (error) {
-      this.logger.error(`Signup error: ${error.message}`);
-      return { ok: 0, error: error.message };
-    }
+    const result = await this.authService.signup(userDto);
+    this.logger.log(`User signed up successfully: ${userDto.username}`);
+    return GeneralResponse.success(result, 'Account created successfully');
   }
 
   @Post('signout')
@@ -60,7 +53,7 @@ export class AuthController {
     // JWT is stateless, so we just return success
     // Client should remove the token from storage
     this.logger.log(`User logged out: ${req.user.username}`);
-    return { ok: 1, message: 'Logged out successfully' };
+    return GeneralResponse.success(null, 'Logged out successfully');
   }
 
   @Public()
@@ -90,13 +83,13 @@ export class AuthController {
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   async getProfile(@Request() req) {
-    return { ok: 1, data: req.user };
+    return GeneralResponse.success(req.user, 'Profile retrieved successfully');
   }
 
   @Get('verify')
   @UseGuards(JwtAuthGuard)
   async verifyToken(@Request() req) {
-    return { ok: 1, valid: true, user: req.user };
+    return GeneralResponse.success({ valid: true, user: req.user }, 'Token is valid');
   }
 
   @Public()
