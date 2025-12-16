@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './filters';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -58,6 +59,34 @@ async function bootstrap() {
   // Global Exception Filter
   app.useGlobalFilters(new AllExceptionsFilter());
 
+  // Swagger API Documentation
+  const config = new DocumentBuilder()
+    .setTitle('Ggomruk API')
+    .setDescription('Algorithmic Trading and Backtesting API')
+    .setVersion('1.0')
+    .addTag('auth', 'Authentication endpoints')
+    .addTag('algo', 'Algorithm and Backtest endpoints')
+    .addTag('user', 'User management endpoints')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth', // This name here is important for matching up with @ApiBearerAuth() in your controller!
+    )
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
+
   // Enable shutdown hooks
   app.enableShutdownHooks();
 
@@ -68,5 +97,6 @@ async function bootstrap() {
   );
   logger.log(`📝 Environment: ${configService.get('app.env')}`);
   logger.log(`🌐 CORS enabled for: ${corsOrigin.join(', ')}`);
+  logger.log(`📚 Swagger documentation: http://localhost:${port}/api/docs`);
 }
 bootstrap();

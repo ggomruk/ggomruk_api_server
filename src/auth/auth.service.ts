@@ -45,7 +45,7 @@ export class AuthService {
     // Generate refresh token with different secret and longer expiration
     const refresh_token = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('auth.jwtRefreshSecret'),
-      expiresIn: this.configService.get<string>('auth.jwtRefreshExpiresIn'),
+      expiresIn: this.configService.get<string>('auth.jwtRefreshExpiresIn') as any,
     });
     
     this.logger.log(`User logged in: ${user.username}`);

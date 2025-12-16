@@ -44,7 +44,7 @@ import { ConfigService } from '@nestjs/config';
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('auth.jwtAccessSecret'),
         signOptions: { 
-          expiresIn: configService.get<string>('auth.jwtAccessExpiresIn')
+          expiresIn: configService.get<string>('auth.jwtAccessExpiresIn') as any
         },
       }),
       inject: [ConfigService],
