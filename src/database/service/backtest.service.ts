@@ -64,4 +64,30 @@ export class BacktestService implements IBacktestService {
     async deleteBacktest(backtestId: string): Promise<boolean> {
         return await this.backtestRepository.deleteById(backtestId);
     }
+
+    /**
+     * Get optimization result from MongoDB (saved by analytics server)
+     */
+    async getOptimizationResult(optimizationId: string): Promise<any> {
+        try {
+            const result = await this.backtestRepository.findOptimizationResult(optimizationId);
+            return result;
+        } catch (error) {
+            this.logger.error(`Failed to fetch optimization result: ${error.message}`);
+            return null;
+        }
+    }
+
+    /**
+     * Get walk-forward analysis result from MongoDB (saved by analytics server)
+     */
+    async getWalkForwardResult(analysisId: string): Promise<any> {
+        try {
+            const result = await this.backtestRepository.findWalkForwardResult(analysisId);
+            return result;
+        } catch (error) {
+            this.logger.error(`Failed to fetch walk-forward result: ${error.message}`);
+            return null;
+        }
+    }
 }

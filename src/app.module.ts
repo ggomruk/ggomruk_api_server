@@ -10,6 +10,8 @@ import * as dotenv from 'dotenv';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { WebsocketModule } from './websocket/websocket.module';
 import { RedisModule } from './redis/redis.module';
+import { OptimizerModule } from './optimizer/optimizer.module';
+import { AlertsModule } from './alerts/alerts.module';
 import configuration from './config'
 import { LoggerMiddleware } from './middleware';
 import { APP_GUARD } from '@nestjs/core';
@@ -62,6 +64,8 @@ const logger = new Logger('App Module');
     WebsocketModule,
     AuthModule,
     AlgoModule,
+    OptimizerModule,
+    AlertsModule,
   ],
   providers: [
     {
