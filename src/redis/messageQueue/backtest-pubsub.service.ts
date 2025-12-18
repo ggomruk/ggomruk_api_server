@@ -49,6 +49,13 @@ export class BacktestPubSubService implements OnModuleInit {
     PROGRESS: 'backtest:progress',
     COMPLETE: 'backtest:complete',
     ERROR: 'backtest:error',
+    // New channels for optimization and walk-forward
+    OPTIMIZATION_TASK: 'optimization:task',
+    OPTIMIZATION_PROGRESS: 'optimization:progress',
+    OPTIMIZATION_COMPLETE: 'optimization:complete',
+    WALKFORWARD_TASK: 'walkforward:task',
+    WALKFORWARD_PROGRESS: 'walkforward:progress',
+    WALKFORWARD_COMPLETE: 'walkforward:complete',
   };
 
   // Event callbacks
@@ -92,6 +99,10 @@ export class BacktestPubSubService implements OnModuleInit {
         this.CHANNELS.PROGRESS,
         this.CHANNELS.COMPLETE,
         this.CHANNELS.ERROR,
+        this.CHANNELS.OPTIMIZATION_PROGRESS,
+        this.CHANNELS.OPTIMIZATION_COMPLETE,
+        this.CHANNELS.WALKFORWARD_PROGRESS,
+        this.CHANNELS.WALKFORWARD_COMPLETE,
       );
 
       this.subscriber.on('message', (channel, message) => {
@@ -147,6 +158,44 @@ export class BacktestPubSubService implements OnModuleInit {
       this.logger.log(`Published backtest task: ${task.backtestId}`);
     } catch (error) {
       this.logger.error(`Failed to publish task for backtest ${task.backtestId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Publish an optimization task to the analytics server (NEW)
+   * Analytics server will generate combinations and run backtests in parallel
+   */
+  async publishOptimizationTask(task: any): Promise<void> {
+    try {
+      const message = JSON.stringify({
+        ...task,
+        timestamp: new Date().toISOString(),
+      });
+      
+      await this.publisher.publish(this.CHANNELS.OPTIMIZATION_TASK, message);
+      this.logger.log(`Published optimization task: ${task.optimizationId}`);
+    } catch (error) {
+      this.logger.error(`Failed to publish optimization task ${task.optimizationId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Publish a walk-forward analysis task to the analytics server (NEW)
+   * Analytics server will generate windows and run train/test in parallel
+   */
+  async publishWalkForwardTask(task: any): Promise<void> {
+    try {
+      const message = JSON.stringify({
+        ...task,
+        timestamp: new Date().toISOString(),
+      });
+      
+      await this.publisher.publish(this.CHANNELS.WALKFORWARD_TASK, message);
+      this.logger.log(`Published walk-forward task: ${task.analysisId}`);
+    } catch (error) {
+      this.logger.error(`Failed to publish walk-forward task ${task.analysisId}:`, error);
       throw error;
     }
   }

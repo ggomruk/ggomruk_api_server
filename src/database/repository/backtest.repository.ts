@@ -53,4 +53,36 @@ export class BacktestSchemaRepository {
         const result = await this.backtestModel.findByIdAndDelete(backtestId);
         return !!result;
     }
+
+    /**
+     * Find optimization result from optimization_results collection
+     * (Created by analytics server)
+     */
+    async findOptimizationResult(optimizationId: string): Promise<any> {
+        try {
+            // Access the optimization_results collection directly
+            const collection = this.backtestModel.db.collection('optimization_results');
+            const result = await collection.findOne({ optimizationId });
+            return result;
+        } catch (error) {
+            this.logger.error(`Failed to fetch optimization result: ${error.message}`);
+            return null;
+        }
+    }
+
+    /**
+     * Find walk-forward analysis result from walkforward_results collection
+     * (Created by analytics server)
+     */
+    async findWalkForwardResult(analysisId: string): Promise<any> {
+        try {
+            // Access the walkforward_results collection directly
+            const collection = this.backtestModel.db.collection('walkforward_results');
+            const result = await collection.findOne({ analysisId });
+            return result;
+        } catch (error) {
+            this.logger.error(`Failed to fetch walk-forward result: ${error.message}`);
+            return null;
+        }
+    }
 }

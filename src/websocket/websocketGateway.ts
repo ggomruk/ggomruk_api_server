@@ -187,6 +187,16 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
         });
     }
 
+    /**
+     * Public method to emit alert triggered event
+     */
+    emitAlertTriggered(userId: string, data: any) {
+        this.broadcastToUser(userId, 'alert:triggered', {
+            ...data,
+            timestamp: new Date().toISOString()
+        });
+    }
+
     // Legacy handlers (keeping for backward compatibility)
     @SubscribeMessage('backtest')
     handleBactestEvent(@MessageBody() data: string, @ConnectedSocket() client: Socket): string {
