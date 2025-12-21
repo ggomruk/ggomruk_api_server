@@ -12,6 +12,7 @@ import { WebsocketModule } from './websocket/websocket.module';
 import { RedisModule } from './redis/redis.module';
 import { OptimizerModule } from './optimizer/optimizer.module';
 import { AlertsModule } from './alerts/alerts.module';
+import { MarketModule } from './market/market.module';
 import configuration from './config'
 import { LoggerMiddleware } from './middleware';
 import { APP_GUARD } from '@nestjs/core';
@@ -66,6 +67,7 @@ const logger = new Logger('App Module');
     AlgoModule,
     OptimizerModule,
     AlertsModule,
+    MarketModule,
   ],
   providers: [
     {

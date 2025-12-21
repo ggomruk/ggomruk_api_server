@@ -4,6 +4,7 @@ import { AlgoService } from './algo.service';
 import { DatabaseModule } from 'src/database/database.module';
 import { RedisModule } from 'src/redis/redis.module';
 import { WebsocketModule } from 'src/websocket/websocket.module';
+import { BacktestModule } from './backtest/backtest.module';
 
 /**
  * 📊 AlgoModule - Trading Algorithm & Backtest APIs
@@ -35,7 +36,8 @@ import { WebsocketModule } from 'src/websocket/websocket.module';
   imports: [
     DatabaseModule,
     RedisModule,
-    WebsocketModule
+    WebsocketModule,
+    BacktestModule,
   ],
   controllers: [AlgoController],
   providers: [AlgoService],
