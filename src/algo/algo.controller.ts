@@ -14,6 +14,7 @@ import { AlgoExceptionFilter } from './algo.exceptionFilter';
 import { BacktestDTO } from './dto/backtest.dto';
 import { AlgoService } from './algo.service';
 import { SignalDTO } from './dto/signal.dto';
+import { OptimizeDTO } from './dto/optimize.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('algo')
@@ -49,6 +50,40 @@ export class AlgoController {
           backtestId,
           status: 'pending',
           message: 'Backtest has been queued for processing'
+        } 
+      };
+    } catch(err) {
+      let errorResponse = err.response;
+      if (err instanceof AlgoException) {
+        return { ok: 0, error: err.message, code: errorResponse.code };
+      }
+      return { ok: 0, error: err.message };
+    }
+  }
+
+  // /api/v1/algo/optimize
+  @Post('optimize')
+  @ApiOperation({ summary: 'Submit an optimization request', description: 'Queues an optimization task (grid search) for processing' })
+  @ApiBody({ type: OptimizeDTO })
+  @ApiResponse({ status: 200, description: 'Optimization queued successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid input parameters' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async registerOptimization(
+    @Body() optimizeDTO: OptimizeDTO,
+    @Request() req,
+  ) {
+    try {
+      const userId = req.user.userId;
+      this.logger.log(`User ${userId} requesting optimization: ${JSON.stringify(optimizeDTO)}`);
+      
+      const optimizationId = await this.algoService.runOptimization(optimizeDTO, userId);
+      
+      return { 
+        ok: 1, 
+        data: { 
+          optimizationId,
+          status: 'pending',
+          message: 'Optimization has been queued for processing'
         } 
       };
     } catch(err) {

@@ -17,7 +17,7 @@ import { BacktestPubSubService } from "src/redis/messageQueue/backtest-pubsub.se
     namespace: 'ws',
     transports: ['websocket'],
     cors: {
-        origin: '*',
+        origin: ['http://localhost:3000', 'http://localhost:3001'],
         methods: ['GET', 'POST'],
         credentials: true
     },

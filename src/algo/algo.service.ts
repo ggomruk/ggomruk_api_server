@@ -6,6 +6,7 @@ import { BacktestService } from 'src/database/service/backtest.service';
 import { IBacktestParams } from 'src/database/schema/backtestParams.schema';
 import { AlgoException, AlgoExceptionCode } from './algo.exception';
 import { SignalDTO } from './dto/signal.dto';
+import { OptimizeDTO } from './dto/optimize.dto';
 import RedisMessageQueueClient from 'src/redis/messageQueue/redis.mq.client';
 import { BacktestPubSubService } from 'src/redis/messageQueue/backtest-pubsub.service';
 import { WebsocketGateway } from 'src/websocket/websocketGateway';
@@ -66,6 +67,47 @@ export class AlgoService {
     }
 
     return backtestId;
+  }
+
+  async runOptimization(data: OptimizeDTO, userId: string) {
+    const optimizationId = uuidv4();
+    
+    // TODO: Save optimization request to database (similar to backtest)
+    // For now, we'll just publish it to Redis
+    
+    try {
+      await this.backtestPubSub.publishOptimizationTask({
+        optimizationId,
+        userId,
+        params: {
+          symbol: data.symbol,
+          interval: data.interval,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          strategies: data.strategies.map(s => ({
+            id: s.id,
+            type: s.type,
+            parameters: s.parameters.map(p => ({
+              name: p.name,
+              min: Number(p.min),
+              max: Number(p.max),
+              step: Number(p.step)
+            }))
+          }))
+        }
+      });
+
+      this.logger.log(`Published optimization task ${optimizationId} to Redis`);
+      
+      // Notify client via WebSocket
+      // this.websocketGateway.emitOptimizationStarted(...)
+
+    } catch (error) {
+      this.logger.error(`Error while sending optimization data: ${error.message}`);
+      throw new Error(error.message);
+    }
+
+    return optimizationId;
   }
 
   async registerSignal(data: SignalDTO) {

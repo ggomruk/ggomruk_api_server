@@ -18,6 +18,31 @@ export interface BacktestTaskMessage {
   };
 }
 
+export interface OptimizationTaskMessage {
+  optimizationId: string;
+  userId: string;
+  params: {
+    symbol: string;
+    interval: string;
+    startDate: string;
+    endDate: string;
+    strategies: {
+      id: string;
+      type: string;
+      parameters: {
+        name: string;
+        min: number;
+        max: number;
+        step: number;
+      }[];
+    }[];
+    usdt?: number;
+    leverage?: number;
+    tc?: number; // commission
+    metric?: string;
+  };
+}
+
 export interface BacktestProgressMessage {
   backtestId: string;
   userId: string;
@@ -46,6 +71,7 @@ export class BacktestPubSubService implements OnModuleInit {
   // Channel names
   private readonly CHANNELS = {
     TASK: 'backtest:task',
+    OPTIMIZE: 'backtest:optimize',
     PROGRESS: 'backtest:progress',
     COMPLETE: 'backtest:complete',
     ERROR: 'backtest:error',
@@ -166,7 +192,7 @@ export class BacktestPubSubService implements OnModuleInit {
    * Publish an optimization task to the analytics server (NEW)
    * Analytics server will generate combinations and run backtests in parallel
    */
-  async publishOptimizationTask(task: any): Promise<void> {
+  async publishOptimizationTask(task: OptimizationTaskMessage): Promise<void> {
     try {
       const message = JSON.stringify({
         ...task,

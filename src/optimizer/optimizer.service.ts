@@ -55,11 +55,19 @@ export class OptimizerService {
           interval: dto.interval,
           startDate: dto.startDate,
           endDate: dto.endDate,
-          strategy: dto.strategies[0], // First strategy
-          parameterRanges: dto.paramRanges,
+          strategies: [{
+            id: dto.strategies[0],
+            type: dto.strategies[0],
+            parameters: dto.paramRanges.map(p => ({
+              name: p.name,
+              min: p.min,
+              max: p.max,
+              step: p.step
+            }))
+          }],
           metric: dto.metric || 'sharpe_ratio',
           leverage: dto.leverage || 1,
-          commission: dto.commission || 0.001,
+          tc: dto.commission || 0.001,
           usdt: dto.usdt || 10000,
         },
       });
