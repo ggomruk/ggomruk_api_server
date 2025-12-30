@@ -36,7 +36,7 @@ export class BacktestSchemaRepository {
     }
 
     async findByUserId(userId: string, limit: number = 50): Promise<BacktestDocument[]> {
-        const query = { uid: userId };
+        const query = { userId: userId };
         const result = await this.backtestModel
             .find(query)
             .sort({ createdAt: -1 })

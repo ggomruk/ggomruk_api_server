@@ -5,6 +5,7 @@ import { IResult, ResultDocument, ResultSchema } from "./result.schema";
 
 export interface IBacktest {
     uid: string;
+    userId?: string;
     backtestParams: IBacktestParams;
     result?: IResult;
 }
@@ -13,6 +14,9 @@ export interface IBacktest {
 export class BacktestDocument extends Document implements IBacktest {
     @Prop({ required: true, type: String})
     uid: string;
+
+    @Prop({ required: false, type: String })
+    userId: string;
 
     @Prop({ required: true, type: BacktestParamsSchema})
     backtestParams: BacktestParamsDocument;

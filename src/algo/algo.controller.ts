@@ -61,6 +61,35 @@ export class AlgoController {
     }
   }
 
+  @Get('backtest/history')
+  @ApiOperation({ summary: 'Get backtest history', description: 'Returns a list of past backtests for the user' })
+  @ApiResponse({ status: 200, description: 'List of backtests' })
+  async getBacktestHistory(@Request() req) {
+    const userId = req.user.userId;
+    const history = await this.algoService.getBacktestHistory(userId);
+    
+    const mappedHistory = history.map(h => {
+        const strategies = h.backtestParams.strategies;
+        // strategies is a Mongoose document, so we might need to convert to object or check keys carefully
+        // But assuming it behaves like an object:
+        const strategyNames = Object.keys(strategies).filter(k => 
+            ['bb', 'macd', 'rsi', 'rv', 'sma', 'so'].includes(k) && (strategies as any)[k] != null
+        );
+        const strategyName = strategyNames.length > 0 ? strategyNames.join('+').toUpperCase() : 'Unknown';
+        
+        return {
+            id: h.uid,
+            name: `${strategyName} Strategy`,
+            strategy: strategyName,
+            symbol: h.backtestParams.symbol,
+            date: (h as any).createdAt,
+            result: h.result
+        };
+    });
+
+    return { ok: 1, data: mappedHistory };
+  }
+
   // /api/v1/algo/optimize
   @Post('optimize')
   @ApiOperation({ summary: 'Submit an optimization request', description: 'Queues an optimization task (grid search) for processing' })

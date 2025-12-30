@@ -8,7 +8,7 @@ import { AlgoException, AlgoExceptionCode } from "src/algo/algo.exception";
 export interface IBacktestService {
     findByUid(uid: string): Promise<BacktestDocument|null>;
     findByUidAndCheckResult(uid: string): Promise<BacktestDocument|null>;
-    saveWithUidAndBacktestParams(uid: string, params: IBacktestParams): Promise<BacktestDocument>;
+    saveWithUidAndBacktestParams(uid: string, params: IBacktestParams, userId?: string): Promise<BacktestDocument>;
     checkAndUpdateResultIfUidExists(uid: string, result: any): Promise<BacktestDocument>;
     getUserBacktests(userId: string, limit?: number): Promise<BacktestDocument[]>;
     getBacktestById(backtestId: string): Promise<BacktestDocument|null>;
@@ -32,8 +32,8 @@ export class BacktestService implements IBacktestService {
         return null;
     }
     
-    async saveWithUidAndBacktestParams(uid: string, params: IBacktestParams): Promise<BacktestDocument> {
-        let result = await this.backtestRepository.insertData({uid, backtestParams: params});
+    async saveWithUidAndBacktestParams(uid: string, params: IBacktestParams, userId?: string): Promise<BacktestDocument> {
+        let result = await this.backtestRepository.insertData({uid, backtestParams: params, userId});
         return result;
     }
 

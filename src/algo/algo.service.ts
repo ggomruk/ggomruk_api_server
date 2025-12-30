@@ -48,7 +48,7 @@ export class AlgoService implements OnModuleInit {
 
     // Insert backtest data if not exists
     try {
-      await this.backtestService.saveWithUidAndBacktestParams(backtestId, backtestParams);
+      await this.backtestService.saveWithUidAndBacktestParams(backtestId, backtestParams, userId);
       this.logger.log(`Saved backtest ${backtestId} to database`);
     } catch (error) {
       this.logger.error(`Failed to save backtest data: ${backtestId}`);
@@ -216,5 +216,9 @@ export class AlgoService implements OnModuleInit {
       this.logger.error(`Failed to get backtest by ID: ${error.message}`);
       throw error;
     }
+  }
+
+  async getBacktestHistory(userId: string) {
+    return await this.backtestService.getUserBacktests(userId);
   }
 }
