@@ -1,8 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { BacktestDTO } from './dto/backtest.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { E_Task } from './enum/task';
 import { BacktestService } from 'src/database/service/backtest.service';
+import { OptimizationTaskService } from 'src/database/service/optimizationTask.service';
+import { OptimizationResultService } from 'src/database/service/optimizationResult.service';
 import { IBacktestParams } from 'src/database/schema/backtestParams.schema';
 import { AlgoException, AlgoExceptionCode } from './algo.exception';
 import { SignalDTO } from './dto/signal.dto';
@@ -12,15 +14,33 @@ import { BacktestPubSubService } from 'src/redis/messageQueue/backtest-pubsub.se
 import { WebsocketGateway } from 'src/websocket/websocketGateway';
 
 @Injectable()
-export class AlgoService {
+export class AlgoService implements OnModuleInit {
   private readonly logger = new Logger(AlgoService.name);
 
   constructor(
     private readonly redisService: RedisMessageQueueClient,
     private readonly backtestService: BacktestService,
+    private readonly optimizationTaskService: OptimizationTaskService,
+    private readonly optimizationResultService: OptimizationResultService,
     private readonly backtestPubSub: BacktestPubSubService,
     private readonly websocketGateway: WebsocketGateway
   ) {}
+
+  onModuleInit() {
+    this.backtestPubSub.onOptimizationComplete(async (data) => {
+      this.logger.log(`Optimization ${data.optimizationId} completed. Updating database.`);
+      try {
+        await this.optimizationTaskService.updateOptimizationStatus(
+          data.optimizationId,
+          'completed',
+          data.resultId
+        );
+      } catch (error) {
+        this.logger.error(`Failed to update optimization status: ${error.message}`);
+      }
+    });
+  }
+
 
   async runBacktest(data: BacktestDTO, userId: string) {
     const backtestId = uuidv4();
@@ -72,29 +92,41 @@ export class AlgoService {
   async runOptimization(data: OptimizeDTO, userId: string) {
     const optimizationId = uuidv4();
     
-    // TODO: Save optimization request to database (similar to backtest)
-    // For now, we'll just publish it to Redis
+    const optimizationParams = {
+      symbol: data.symbol,
+      interval: data.interval,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      strategies: data.strategies.map(s => ({
+        id: s.id,
+        type: s.type,
+        parameters: s.parameters.map(p => ({
+          name: p.name,
+          min: Number(p.min),
+          max: Number(p.max),
+          step: Number(p.step)
+        }))
+      }))
+    };
+
+    // Save optimization request to database
+    try {
+      await this.optimizationTaskService.createOptimizationTask(
+        optimizationId,
+        userId,
+        optimizationParams
+      );
+      this.logger.log(`Saved optimization task ${optimizationId} to database`);
+    } catch (error) {
+      this.logger.error(`Failed to save optimization task: ${optimizationId}`, error);
+      throw new Error('Failed to save optimization task');
+    }
     
     try {
       await this.backtestPubSub.publishOptimizationTask({
         optimizationId,
         userId,
-        params: {
-          symbol: data.symbol,
-          interval: data.interval,
-          startDate: data.startDate,
-          endDate: data.endDate,
-          strategies: data.strategies.map(s => ({
-            id: s.id,
-            type: s.type,
-            parameters: s.parameters.map(p => ({
-              name: p.name,
-              min: Number(p.min),
-              max: Number(p.max),
-              step: Number(p.step)
-            }))
-          }))
-        }
+        params: optimizationParams
       });
 
       this.logger.log(`Published optimization task ${optimizationId} to Redis`);
@@ -113,6 +145,33 @@ export class AlgoService {
   async registerSignal(data: SignalDTO) {
     const uid = uuidv4(); 
     let signalParams = data.toSignalParams()
+  }
+
+  async getUserOptimizations(userId: string) {
+    try {
+      const tasks = await this.optimizationTaskService.getUserOptimizationTasks(userId);
+      return tasks.map(task => ({
+        optimizationId: task.optimizationId,
+        userId: task.userId,
+        status: task.status,
+        params: task.params,
+        resultId: task.resultId,
+        createdAt: (task as any).createdAt,
+        updatedAt: (task as any).updatedAt,
+      }));
+    } catch (error) {
+      this.logger.error(`Failed to get user optimizations: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async getOptimizationResult(optimizationId: string) {
+    try {
+      return await this.optimizationResultService.getOptimizationResult(optimizationId);
+    } catch (error) {
+      this.logger.error(`Failed to get optimization result: ${error.message}`);
+      throw error;
+    }
   }
 
   async getUserBacktests(userId: string, limit: number = 50) {

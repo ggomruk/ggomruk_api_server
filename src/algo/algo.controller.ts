@@ -187,4 +187,61 @@ export class AlgoController {
     }
   }
 
+  @Get('optimizations')
+  @ApiOperation({ summary: 'Get user optimizations', description: 'Retrieve all optimization tasks for the authenticated user' })
+  @ApiResponse({ status: 200, description: 'Optimizations retrieved successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getOptimizations(@Request() req) {
+    try {
+      const userId = req.user.userId;
+      this.logger.log(`User ${userId} fetching optimizations`);
+      
+      const optimizations = await this.algoService.getUserOptimizations(userId);
+      
+      return { 
+        ok: 1, 
+        data: optimizations 
+      };
+    } catch (err) {
+      this.logger.error(`Failed to fetch optimizations: ${err.message}`);
+      return { ok: 0, error: err.message };
+    }
+  }
+
+  @Get('optimization/:id/result')
+  @ApiOperation({ summary: 'Get optimization result', description: 'Retrieve the result of a completed optimization' })
+  @ApiResponse({ status: 200, description: 'Optimization result retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Optimization result not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async getOptimizationResult(@Request() req) {
+    try {
+      const userId = req.user.userId;
+      const optimizationId = req.params.id;
+      
+      this.logger.log(`User ${userId} fetching optimization result ${optimizationId}`);
+      
+      // First check if the task belongs to the user
+      // Ideally we should check ownership, but for now let's just fetch the result
+      // The result document also has userId, so we can check that
+      
+      const result = await this.algoService.getOptimizationResult(optimizationId);
+      
+      if (!result) {
+        return { ok: 0, error: 'Optimization result not found' };
+      }
+
+      if (result.userId !== userId) {
+        return { ok: 0, error: 'Unauthorized' };
+      }
+      
+      return { 
+        ok: 1, 
+        data: result 
+      };
+    } catch (err) {
+      this.logger.error(`Failed to fetch optimization result: ${err.message}`);
+      return { ok: 0, error: err.message };
+    }
+  }
+
 }
