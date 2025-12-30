@@ -88,6 +88,14 @@ export class BacktestPubSubService implements OnModuleInit {
   private progressCallbacks: ((data: BacktestProgressMessage) => void)[] = [];
   private completeCallbacks: ((data: BacktestCompleteMessage) => void)[] = [];
   private errorCallbacks: ((data: BacktestCompleteMessage) => void)[] = [];
+  
+  // Optimization callbacks
+  private optimizationProgressCallbacks: ((data: any) => void)[] = [];
+  private optimizationCompleteCallbacks: ((data: any) => void)[] = [];
+  
+  // Walkforward callbacks
+  private walkforwardProgressCallbacks: ((data: any) => void)[] = [];
+  private walkforwardCompleteCallbacks: ((data: any) => void)[] = [];
 
   constructor(
     @Inject(REDIS_PUBLISHER) private readonly publisher: Redis,
@@ -161,6 +169,26 @@ export class BacktestPubSubService implements OnModuleInit {
           this.logger.error(`Backtest ${data.backtestId} failed: ${data.error}`);
           this.errorCallbacks.forEach(cb => cb(data));
           break;
+
+        case this.CHANNELS.OPTIMIZATION_PROGRESS:
+          this.logger.debug(`Optimization progress for ${data.optimizationId}: ${data.progress}%`);
+          this.optimizationProgressCallbacks.forEach(cb => cb(data));
+          break;
+
+        case this.CHANNELS.OPTIMIZATION_COMPLETE:
+          this.logger.log(`Optimization ${data.optimizationId} completed`);
+          this.optimizationCompleteCallbacks.forEach(cb => cb(data));
+          break;
+
+        case this.CHANNELS.WALKFORWARD_PROGRESS:
+          this.logger.debug(`Walkforward progress for ${data.walkforwardId}: ${data.progress}%`);
+          this.walkforwardProgressCallbacks.forEach(cb => cb(data));
+          break;
+
+        case this.CHANNELS.WALKFORWARD_COMPLETE:
+          this.logger.log(`Walkforward ${data.walkforwardId} completed`);
+          this.walkforwardCompleteCallbacks.forEach(cb => cb(data));
+          break;
           
         default:
           this.logger.warn(`Unknown channel: ${channel}`);
@@ -229,24 +257,52 @@ export class BacktestPubSubService implements OnModuleInit {
   /**
    * Register a callback for progress updates
    */
-  onProgress(callback: (data: BacktestProgressMessage) => void): void {
+  onProgress(callback: (data: BacktestProgressMessage) => void) {
     this.progressCallbacks.push(callback);
   }
 
   /**
    * Register a callback for completion events
    */
-  onComplete(callback: (data: BacktestCompleteMessage) => void): void {
+  onComplete(callback: (data: BacktestCompleteMessage) => void) {
     this.completeCallbacks.push(callback);
   }
 
   /**
    * Register a callback for error events
    */
-  onError(callback: (data: BacktestCompleteMessage) => void): void {
+  onError(callback: (data: BacktestCompleteMessage) => void) {
     this.errorCallbacks.push(callback);
   }
 
+  /**
+   * Register a callback for optimization progress
+   */
+  onOptimizationProgress(callback: (data: any) => void) {
+    this.optimizationProgressCallbacks.push(callback);
+  }
+
+  /**
+   * Register a callback for optimization completion
+   */
+  onOptimizationComplete(callback: (data: any) => void) {
+    this.optimizationCompleteCallbacks.push(callback);
+  }
+
+  /**
+   * Register a callback for walkforward progress
+   */
+  onWalkforwardProgress(callback: (data: any) => void) {
+    this.walkforwardProgressCallbacks.push(callback);
+  }
+
+  /**
+   * Register a callback for walkforward completion
+   */
+  onWalkforwardComplete(callback: (data: any) => void) {
+    this.walkforwardCompleteCallbacks.push(callback);
+  }
+  
   /**
    * Clean up Redis connections on module destroy
    */

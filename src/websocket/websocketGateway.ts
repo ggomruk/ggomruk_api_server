@@ -141,6 +141,30 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
             this.logger.error(`Broadcasting error for backtest ${data.backtestId}`);
             this.broadcastToUser(data.userId, 'backtest:error', data);
         });
+
+        // Listen for optimization progress
+        this.backtestPubSub.onOptimizationProgress((data) => {
+            this.logger.debug(`Broadcasting progress for optimization ${data.optimizationId}: ${data.progress}%`);
+            this.broadcastToUser(data.userId, 'optimization:progress', data);
+        });
+
+        // Listen for optimization completion
+        this.backtestPubSub.onOptimizationComplete((data) => {
+            this.logger.log(`Broadcasting completion for optimization ${data.optimizationId}`);
+            this.broadcastToUser(data.userId, 'optimization:complete', data);
+        });
+
+        // Listen for walkforward progress
+        this.backtestPubSub.onWalkforwardProgress((data) => {
+            this.logger.debug(`Broadcasting progress for walkforward ${data.walkforwardId}: ${data.progress}%`);
+            this.broadcastToUser(data.userId, 'walkforward:progress', data);
+        });
+
+        // Listen for walkforward completion
+        this.backtestPubSub.onWalkforwardComplete((data) => {
+            this.logger.log(`Broadcasting completion for walkforward ${data.walkforwardId}`);
+            this.broadcastToUser(data.userId, 'walkforward:complete', data);
+        });
     }
 
     /**
