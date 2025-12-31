@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
 import { Logger, ValidationPipe } from '@nestjs/common';
-import { AllExceptionsFilter } from './filters';
+import { AllExceptionsFilter } from './common/filters';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {

@@ -2,8 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { OptimizeStrategyDTO } from './dto/optimize-strategy.dto';
 import { CompareStrategiesDTO } from './dto/compare-strategies.dto';
 import { WalkForwardDTO } from './dto/walk-forward.dto';
-import { BacktestService } from 'src/database/service/backtest.service';
-import { BacktestPubSubService } from 'src/redis/messageQueue/backtest-pubsub.service';
+import { BacktestService } from 'src/common/database/service/backtest.service';
+import { BacktestPubSubService } from 'src/domain/redis/messageQueue/backtest-pubsub.service';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface OptimizationResult {

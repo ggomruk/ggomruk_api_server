@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AlgoController } from './algo.controller';
 import { AlgoService } from './algo.service';
-import { DatabaseModule } from 'src/database/database.module';
-import { RedisModule } from 'src/redis/redis.module';
-import { WebsocketModule } from 'src/websocket/websocket.module';
+import { DatabaseModule } from 'src/common/database/database.module';
+import { RedisModule } from 'src/domain/redis/redis.module';
+import { WebsocketModule } from 'src/domain/websocket/websocket.module';
 import { BacktestModule } from './backtest/backtest.module';
 
 /**

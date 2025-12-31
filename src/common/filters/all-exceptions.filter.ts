@@ -7,8 +7,8 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { GeneralResponse } from '../common/dto/general-response.dto';
-import { ErrorCode } from '../common/enums/error-code.enum';
+import { GeneralResponse } from '../dto/general-response.dto';
+import { ErrorCode } from '../enums/error-code.enum';
 
 /**
  * All Exceptions Filter

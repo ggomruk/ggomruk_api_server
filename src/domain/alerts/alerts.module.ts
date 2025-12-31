@@ -4,7 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AlertsController } from './alerts.controller';
 import { AlertsService } from './alerts.service';
 import { Alert, AlertSchema } from './schemas/alert.schema';
-import { WebsocketModule } from 'src/websocket/websocket.module';
+import { WebsocketModule } from 'src/domain/websocket/websocket.module';
 
 @Module({
   imports: [

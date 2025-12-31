@@ -15,7 +15,7 @@ import { BacktestDTO } from './dto/backtest.dto';
 import { AlgoService } from './algo.service';
 import { SignalDTO } from './dto/signal.dto';
 import { OptimizeDTO } from './dto/optimize.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/domain/auth/guards/jwt-auth.guard';
 
 @ApiTags('algo')
 @ApiBearerAuth('JWT-auth')

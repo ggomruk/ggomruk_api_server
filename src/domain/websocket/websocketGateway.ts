@@ -10,7 +10,7 @@ import {
     WebSocketServer
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { BacktestPubSubService } from "src/redis/messageQueue/backtest-pubsub.service";
+import { BacktestPubSubService } from "src/domain/redis/messageQueue/backtest-pubsub.service";
 
 // Gateway for Websocket to connect between client 
 @WebSocketGateway(5678, {

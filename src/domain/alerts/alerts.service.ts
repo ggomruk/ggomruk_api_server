@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Alert, AlertDocument } from './schemas/alert.schema';
 import { CreateAlertDTO, AlertType, AlertStatus } from './dto/create-alert.dto';
-import { WebsocketGateway } from 'src/websocket/websocketGateway';
+import { WebsocketGateway } from 'src/domain/websocket/websocketGateway';
 import axios from 'axios';
 
 @Injectable()

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { WebsocketGateway } from './websocketGateway';
-import { RedisModule } from 'src/redis/redis.module';
+import { RedisModule } from 'src/domain/redis/redis.module';
 
 /**
  * 🔌 WebsocketModule - Real-time communication via Socket.IO

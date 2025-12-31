@@ -2,7 +2,7 @@ import { IsNotEmpty, IsString } from "class-validator";
 import { ValidStrategyParams } from "../customValidator/IsValidStrategyParams";
 import { E_StrategyNames } from "../enum/strategy";
 import { BB, MACD, RSI, RV, SMA, SO } from "../customValidator/validatorTypes";
-import { ISignalParams } from "src/database/schema/signal.schema";
+import { ISignalParams } from "src/common/database/schema/signal.schema";
 
 export class SignalDTO {
     @IsNotEmpty()

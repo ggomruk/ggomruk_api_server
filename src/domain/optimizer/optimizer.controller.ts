@@ -4,7 +4,7 @@ import { OptimizerService } from './optimizer.service';
 import { OptimizeStrategyDTO } from './dto/optimize-strategy.dto';
 import { CompareStrategiesDTO } from './dto/compare-strategies.dto';
 import { WalkForwardDTO } from './dto/walk-forward.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/domain/auth/guards/jwt-auth.guard';
 
 @ApiTags('Optimizer')
 @Controller('optimizer')

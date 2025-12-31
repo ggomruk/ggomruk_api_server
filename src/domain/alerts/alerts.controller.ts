@@ -2,7 +2,7 @@ import { Controller, Post, Get, Delete, Body, Param, UseGuards, Request } from '
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AlertsService } from './alerts.service';
 import { CreateAlertDTO } from './dto/create-alert.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/domain/auth/guards/jwt-auth.guard';
 
 @ApiTags('Alerts')
 @Controller('alerts')

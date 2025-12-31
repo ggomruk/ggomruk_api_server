@@ -1,6 +1,6 @@
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AlgoModule } from './algo/algo.module';
-import { AuthModule } from './auth/auth.module';
+import { AlgoModule } from './domain/algo/algo.module';
+import { AuthModule } from './domain/auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import envValidation from './config/config.validation';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,15 +8,15 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import * as dotenv from 'dotenv';
 // import { RedisModule } from './redis/redis.module';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
-import { WebsocketModule } from './websocket/websocket.module';
-import { RedisModule } from './redis/redis.module';
-import { OptimizerModule } from './optimizer/optimizer.module';
-import { AlertsModule } from './alerts/alerts.module';
-import { MarketModule } from './market/market.module';
+import { WebsocketModule } from './domain/websocket/websocket.module';
+import { RedisModule } from './domain/redis/redis.module';
+import { OptimizerModule } from './domain/optimizer/optimizer.module';
+import { AlertsModule } from './domain/alerts/alerts.module';
+import { MarketModule } from './domain/market/market.module';
 import configuration from './config'
-import { LoggerMiddleware } from './middleware';
+import { LoggerMiddleware } from './common/middleware';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from './domain/auth/guards/jwt-auth.guard';
 dotenv.config();
 
 const envValidationSchema = envValidation();
