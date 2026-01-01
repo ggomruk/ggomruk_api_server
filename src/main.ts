@@ -20,7 +20,7 @@ async function bootstrap() {
   const port = configService.get<number>('app.port')
   const apiPrefix = configService.get<string>('app.apiPrefix');
   const apiVersion = configService.get<string>('app.apiVersion');
-  const corsOrigin = configService.get<string[]>('cors.corsOrigin', [
+  const corsOrigin = configService.get<string[]>('app.corsOrigin', [
     'http://localhost:3000',
   ]);
 
@@ -90,7 +90,7 @@ async function bootstrap() {
   // Enable shutdown hooks
   app.enableShutdownHooks();
 
-  await app.listen(4000);
+  await app.listen(port);
 
   logger.log(
     `🚀 Application is running on: http://localhost:${port}/${apiPrefix}/${apiVersion}`,

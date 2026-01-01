@@ -4,6 +4,7 @@ import {
   Get,
   Body,
   Req,
+  Param,
   HttpCode,
   HttpStatus,
   UseGuards,
@@ -31,5 +32,14 @@ export class BacktestController {
   async getHistory(@Req() req: any): Promise<any[]> {
     const userId = req.user?.userId || 'anonymous';
     return this.backtestService.getBacktestHistory(userId);
+  }
+
+  @Get(':id')
+  async getBacktestResult(
+    @Param('id') id: string,
+    @Req() req: any,
+  ): Promise<any> {
+    const userId = req.user?.userId || 'anonymous';
+    return this.backtestService.getBacktestResult(id, userId);
   }
 }

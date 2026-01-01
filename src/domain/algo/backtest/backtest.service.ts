@@ -1,22 +1,19 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { BacktestRequest, BacktestResponse } from './backtest.interface';
 import { v4 as uuidv4 } from 'uuid';
+import { BacktestPubSubService } from '../../redis/messageQueue/backtest-pubsub.service';
+import { Backtest, BacktestDocument } from './schemas/backtest.schema';
 
 @Injectable()
 export class BacktestService {
   private readonly logger = new Logger(BacktestService.name);
-  private readonly pythonServerUrl: string;
 
-  constructor(private configService: ConfigService) {
-    // Get Python backtest server URL from env or use default
-    this.pythonServerUrl = this.configService.get<string>(
-      'PYTHON_BACKTEST_URL',
-      'http://localhost:5001',
-    );
-    this.logger.log(`Python Backtest Server: ${this.pythonServerUrl}`);
-  }
+  constructor(
+    private readonly backtestPubSubService: BacktestPubSubService,
+    @InjectModel(Backtest.name) private backtestModel: Model<BacktestDocument>,
+  ) {}
 
   async runBacktest(
     backtestRequest: BacktestRequest,
@@ -29,72 +26,78 @@ export class BacktestService {
         `Running backtest ${backtestId} for user ${userId}: ${backtestRequest.symbol} ${backtestRequest.interval}`,
       );
 
-      // Prepare request for Python server
-      const pythonRequest = {
+      // Prepare task for Redis
+      // Map BacktestRequest to BacktestTaskMessage structure
+      const strategies = Object.keys(backtestRequest.strategyParams.strategies || {});
+      
+      const task = {
         backtestId,
         userId,
-        symbol: backtestRequest.symbol,
-        interval: backtestRequest.interval,
-        startDate: backtestRequest.startDate,
-        endDate: backtestRequest.endDate,
-        usdt: backtestRequest.usdt,
-        tc: backtestRequest.tc,
-        leverage: backtestRequest.leverage,
-        strategyParams: backtestRequest.strategyParams,
+        params: {
+          symbol: backtestRequest.symbol,
+          interval: backtestRequest.interval,
+          startDate: backtestRequest.startDate,
+          endDate: backtestRequest.endDate,
+          usdt: backtestRequest.usdt,
+          tc: backtestRequest.tc,
+          leverage: backtestRequest.leverage,
+          strategies: strategies,
+          strategyParams: backtestRequest.strategyParams.strategies,
+        }
       };
 
-      // Call Python backtest service
-      const response = await axios.post(
-        `${this.pythonServerUrl}/backtest`,
-        pythonRequest,
-        {
-          timeout: 60000, // 60 second timeout
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-      );
+      // Publish to Redis
+      await this.backtestPubSubService.publishTask(task);
 
-      const result = response.data;
+      this.logger.log(`Backtest task ${backtestId} published successfully`);
 
-      // Transform Python response to frontend format
+      // Return pending response
       const backtestResponse: BacktestResponse = {
         backtestId,
-        strategyName: result.strategy_name || 'Unknown',
-        leverageApplied: result.leverage_applied || 1,
-        totalReturn: result.levered_performance?.total_return_pct || 0,
-        sharpeRatio: result.performance?.sharpe_ratio || 0,
-        maxDrawdown: result.performance?.max_drawdown || 0,
-        totalTrades: result.performance?.total_trades || 0,
-        winRate: result.performance?.win_rate || 0,
-        finalBalance: result.levered_performance?.final_balance || 0,
-        performance: result.performance,
-        leveredPerformance: result.levered_performance,
+        strategyName: 'Pending',
+        leverageApplied: backtestRequest.leverage,
+        totalReturn: 0,
+        sharpeRatio: 0,
+        maxDrawdown: 0,
+        totalTrades: 0,
+        winRate: 0,
+        finalBalance: 0,
+        performance: {},
+        leveredPerformance: {},
       };
 
-      this.logger.log(`Backtest ${backtestId} completed successfully`);
       return backtestResponse;
     } catch (error) {
       this.logger.error(
-        `Backtest ${backtestId} failed: ${error.message}`,
+        `Backtest ${backtestId} failed to publish: ${error.message}`,
         error.stack,
       );
 
-      if (axios.isAxiosError(error)) {
-        if (error.code === 'ECONNREFUSED') {
-          throw new HttpException(
-            'Python backtest server is not running',
-            HttpStatus.SERVICE_UNAVAILABLE,
-          );
-        }
-        throw new HttpException(
-          error.response?.data?.message || 'Backtest failed',
-          error.response?.status || HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-
       throw new HttpException(
-        'Internal server error during backtest',
+        'Internal server error during backtest submission',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getBacktestResult(backtestId: string, userId: string): Promise<any> {
+    try {
+      this.logger.log(`Querying DB for backtestId: ${backtestId}, userId: ${userId}`);
+      const backtest = await this.backtestModel.findOne({ backtestId, userId }).exec();
+      
+      if (!backtest) {
+        this.logger.warn(`Backtest not found in collection: ${this.backtestModel.collection.name}`);
+        throw new HttpException('Backtest not found', HttpStatus.NOT_FOUND);
+      }
+      return backtest.result;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      this.logger.error(
+        `Failed to fetch backtest result: ${error.message}`,
+        error.stack,
+      );
+      throw new HttpException(
+        'Failed to fetch backtest result',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -102,10 +105,14 @@ export class BacktestService {
 
   async getBacktestHistory(userId: string): Promise<any[]> {
     try {
-      // This would typically query MongoDB for user's backtest history
-      // For now, return empty array
       this.logger.log(`Fetching backtest history for user ${userId}`);
-      return [];
+      const history = await this.backtestModel
+        .find({ userId })
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .select('-result') // Exclude large result object
+        .exec();
+      return history;
     } catch (error) {
       this.logger.error(
         `Failed to fetch backtest history: ${error.message}`,
