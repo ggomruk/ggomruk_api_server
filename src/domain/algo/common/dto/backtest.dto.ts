@@ -11,7 +11,7 @@ import { IsDecimalWithStep } from '../customValidator/IsDecimalWithStep';
 import { BB, MACD, RSI, RV, SMA, SO } from '../customValidator/validatorTypes';
 import { ValidStrategyParams } from '../customValidator/IsValidStrategyParams';
 import { E_StrategyNames } from '../enum/strategy';
-import { IBacktestParams } from 'src/common/database/schema/backtestParams.schema';
+import { IBacktestParams } from '../../backtest/schemas/backtestParams.schema';
 
 export class BacktestDTO {
   @ApiProperty({ 

@@ -1,10 +1,10 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { BacktestDTO } from './common/dto/backtest.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { BacktestService } from 'src/common/database/service/backtest.service';
-import { OptimizationTaskService } from 'src/common/database/service/optimizationTask.service';
-import { OptimizationResultService } from 'src/common/database/service/optimizationResult.service';
-import { IBacktestParams } from 'src/common/database/schema/backtestParams.schema';
+import { BacktestService } from './backtest/backtest.service';
+import { OptimizationTaskService } from './optimizer/service/optimizationTask.service';
+import { OptimizationResultService } from './optimizer/service/optimizationResult.service';
+import { IBacktestParams } from './backtest/schemas/backtestParams.schema';
 import { AlgoException, AlgoExceptionCode } from './algo.exception';
 import { SignalDTO } from './common/dto/signal.dto';
 import { OptimizeDTO } from './common/dto/optimize.dto';

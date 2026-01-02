@@ -1,14 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Test, TestingModule } from "@nestjs/testing"
-import { AlgoService } from "../algo.service"
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from "mongoose"
-import { BacktestService } from "src/database/service/backtest.service"
+import { BacktestService } from "../../backtest/backtest.service"
 import { validBacktestBody } from "./stub/backtest.stub"
-import { IBacktestParams } from 'src/database/schema/backtestParams.schema';
+import { IBacktestParams } from '../../backtest/schemas/backtestParams.schema';
 import { E_Task } from '../enum/task';
 import Redis from 'ioredis-mock';
-import { RedisService } from 'src/redis/cache/redis.service';
+import { RedisService } from 'src/domain/redis/cache/redis.service';
+import { AlgoService } from '../../algo.service';
 
 describe('Algo Service', () => {
     let algoService: AlgoService;

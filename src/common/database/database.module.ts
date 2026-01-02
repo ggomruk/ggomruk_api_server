@@ -1,14 +1,18 @@
 import { MongooseModule } from "@nestjs/mongoose";
-import { BacktestSchema, MarketSchema, OptimizationTaskSchema, OptimizationTask } from "./schema";
 import { Module } from "@nestjs/common";
-import { BacktestSchemaRepository } from "./repository/backtest.repository";
-import { BacktestService } from "./service/backtest.service";
-import { SignalSchema } from "./schema/signal.schema";
-import { OptimizationTaskRepository } from "./repository/optimizationTask.repository";
-import { OptimizationTaskService } from "./service/optimizationTask.service";
-import { OptimizationResultSchema, OptimizationResult } from "./schema/optimizationResult.schema";
-import { OptimizationResultRepository } from "./repository/optimizationResult.repository";
-import { OptimizationResultService } from "./service/optimizationResult.service";
+import { BacktestSchema } from "../../domain/algo/backtest/schemas/backtest.schema";
+import { MarketSchema } from "../../domain/market/schemas/market.schema";
+import { OptimizationTaskSchema, OptimizationTask } from "../../domain/algo/optimizer/schema/optimizationTask.schema";
+import { OptimizationResultSchema, OptimizationResult } from "../../domain/algo/optimizer/schema/optimizationResult.schema";
+import { SignalSchema } from "../../domain/algo/backtest/schemas/signal.schema";
+import { BacktestService } from "../../domain/algo/backtest/backtest.service";
+import { OptimizationTaskService } from "../../domain/algo/optimizer/service/optimizationTask.service";
+import { OptimizationResultService } from "../../domain/algo/optimizer/service/optimizationResult.service";
+import { BacktestSchemaRepository } from "../../domain/algo/backtest/backtest.repository";
+import { OptimizationTaskRepository } from "../../domain/algo/optimizer/repository/optimizationTask.repository";
+import { OptimizationResultRepository } from "../../domain/algo/optimizer/repository/optimizationResult.repository";
+import { RedisMessageQueueModule } from "../../domain/redis/messageQueue/redis.mq.module";
+import { WebsocketModule } from "../../domain/websocket/websocket.module";
 
 @Module({
     imports: [
@@ -18,7 +22,9 @@ import { OptimizationResultService } from "./service/optimizationResult.service"
             { name: "Market", schema: MarketSchema },
             { name: OptimizationTask.name, schema: OptimizationTaskSchema },
             { name: OptimizationResult.name, schema: OptimizationResultSchema },
-        ])
+        ]),
+        RedisMessageQueueModule,
+        WebsocketModule
     ],
     providers: [
         BacktestService, 
