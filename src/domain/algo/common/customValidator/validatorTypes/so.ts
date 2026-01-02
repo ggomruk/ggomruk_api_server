@@ -14,7 +14,6 @@ export class SO {
 
 @ValidatorConstraint({ async: true })
 export class SOParamsValidator implements ValidatorConstraintInterface {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(value: any, args: ValidationArguments) {
     return value.periods !== undefined && value.d_mw !== undefined;
   }

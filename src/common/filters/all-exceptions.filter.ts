@@ -32,7 +32,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      if (typeof exceptionResponse === 'object' && 'message' in exceptionResponse) {
+      if (
+        typeof exceptionResponse === 'object' &&
+        'message' in exceptionResponse
+      ) {
         message = Array.isArray(exceptionResponse.message)
           ? exceptionResponse.message[0]
           : exceptionResponse.message;
@@ -114,7 +117,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
   private mapErrorMessageToErrorCode(message: string): ErrorCode {
     const lowerMessage = message.toLowerCase();
 
-    if (lowerMessage.includes('credential') || lowerMessage.includes('password')) {
+    if (
+      lowerMessage.includes('credential') ||
+      lowerMessage.includes('password')
+    ) {
       return ErrorCode.AUTH_INVALID_CREDENTIALS;
     }
     if (lowerMessage.includes('token')) {
@@ -139,20 +145,28 @@ export class AllExceptionsFilter implements ExceptionFilter {
   /**
    * Get user-friendly error messages (hide internal implementation details)
    */
-  private getUserFriendlyMessage(errorCode: ErrorCode, originalMessage: string): string {
+  private getUserFriendlyMessage(
+    errorCode: ErrorCode,
+    originalMessage: string,
+  ): string {
     const friendlyMessages: Record<ErrorCode, string> = {
       // Authentication
       [ErrorCode.AUTH_INVALID_CREDENTIALS]: 'Invalid username or password',
-      [ErrorCode.AUTH_TOKEN_EXPIRED]: 'Your session has expired. Please login again',
-      [ErrorCode.AUTH_TOKEN_INVALID]: 'Invalid authentication token. Please login again',
-      [ErrorCode.AUTH_UNAUTHORIZED]: 'You are not authorized to access this resource',
+      [ErrorCode.AUTH_TOKEN_EXPIRED]:
+        'Your session has expired. Please login again',
+      [ErrorCode.AUTH_TOKEN_INVALID]:
+        'Invalid authentication token. Please login again',
+      [ErrorCode.AUTH_UNAUTHORIZED]:
+        'You are not authorized to access this resource',
       [ErrorCode.AUTH_USER_NOT_FOUND]: 'User not found',
       [ErrorCode.AUTH_USER_ALREADY_EXISTS]: 'Username or email already exists',
-      [ErrorCode.AUTH_WEAK_PASSWORD]: 'Password does not meet security requirements',
+      [ErrorCode.AUTH_WEAK_PASSWORD]:
+        'Password does not meet security requirements',
       [ErrorCode.AUTH_INVALID_EMAIL]: 'Invalid email address format',
 
       // Validation
-      [ErrorCode.VALIDATION_FAILED]: originalMessage || 'Validation failed. Please check your input',
+      [ErrorCode.VALIDATION_FAILED]:
+        originalMessage || 'Validation failed. Please check your input',
       [ErrorCode.VALIDATION_MISSING_FIELD]: 'Required field is missing',
       [ErrorCode.VALIDATION_INVALID_FORMAT]: 'Invalid data format',
       [ErrorCode.VALIDATION_OUT_OF_RANGE]: 'Value is out of acceptable range',
@@ -165,23 +179,33 @@ export class AllExceptionsFilter implements ExceptionFilter {
       // Business Logic
       [ErrorCode.BACKTEST_FAILED]: 'Backtest execution failed',
       [ErrorCode.BACKTEST_INVALID_STRATEGY]: 'Invalid strategy configuration',
-      [ErrorCode.BACKTEST_INVALID_DATE_RANGE]: 'Invalid date range for backtest',
-      [ErrorCode.TRADING_INSUFFICIENT_FUNDS]: 'Insufficient funds for this operation',
+      [ErrorCode.BACKTEST_INVALID_DATE_RANGE]:
+        'Invalid date range for backtest',
+      [ErrorCode.TRADING_INSUFFICIENT_FUNDS]:
+        'Insufficient funds for this operation',
       [ErrorCode.TRADING_MARKET_CLOSED]: 'Market is currently closed',
 
       // Database
-      [ErrorCode.DATABASE_CONNECTION_FAILED]: 'Unable to connect to database. Please try again later',
-      [ErrorCode.DATABASE_QUERY_FAILED]: 'Database operation failed. Please try again',
-      [ErrorCode.DATABASE_TRANSACTION_FAILED]: 'Transaction failed. Please try again',
+      [ErrorCode.DATABASE_CONNECTION_FAILED]:
+        'Unable to connect to database. Please try again later',
+      [ErrorCode.DATABASE_QUERY_FAILED]:
+        'Database operation failed. Please try again',
+      [ErrorCode.DATABASE_TRANSACTION_FAILED]:
+        'Transaction failed. Please try again',
 
       // External Services
-      [ErrorCode.EXTERNAL_SERVICE_UNAVAILABLE]: 'External service is temporarily unavailable',
-      [ErrorCode.EXTERNAL_SERVICE_TIMEOUT]: 'Service request timed out. Please try again',
-      [ErrorCode.REDIS_CONNECTION_FAILED]: 'Cache service unavailable. Please try again later',
+      [ErrorCode.EXTERNAL_SERVICE_UNAVAILABLE]:
+        'External service is temporarily unavailable',
+      [ErrorCode.EXTERNAL_SERVICE_TIMEOUT]:
+        'Service request timed out. Please try again',
+      [ErrorCode.REDIS_CONNECTION_FAILED]:
+        'Cache service unavailable. Please try again later',
 
       // Internal
-      [ErrorCode.INTERNAL_SERVER_ERROR]: 'An unexpected error occurred. Please try again later',
-      [ErrorCode.UNKNOWN_ERROR]: 'An unknown error occurred. Please contact support',
+      [ErrorCode.INTERNAL_SERVER_ERROR]:
+        'An unexpected error occurred. Please try again later',
+      [ErrorCode.UNKNOWN_ERROR]:
+        'An unknown error occurred. Please contact support',
     };
 
     return friendlyMessages[errorCode] || 'An unexpected error occurred';

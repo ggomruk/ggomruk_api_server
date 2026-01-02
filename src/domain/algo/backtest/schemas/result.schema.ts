@@ -1,7 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
-import { ILeveragedPerformance, LeveragedPerformanceDocument, LeveragedPerformanceSchema } from './resultSchema/leveragedPerformance.schema';
-import { IPerformance, PerformanceDocument, PerformanceSchema } from './resultSchema/performance.schema';
+import {
+  ILeveragedPerformance,
+  LeveragedPerformanceDocument,
+  LeveragedPerformanceSchema,
+} from './resultSchema/leveragedPerformance.schema';
+import {
+  IPerformance,
+  PerformanceDocument,
+  PerformanceSchema,
+} from './resultSchema/performance.schema';
 
 export interface IResult {
   strategyName: string;
@@ -11,7 +19,7 @@ export interface IResult {
 
 @Schema({ timestamps: true, _id: false })
 export class ResultDocument extends Document implements IResult {
-  @Prop({ required: true, type: String})
+  @Prop({ required: true, type: String })
   strategyName: string;
 
   @Prop({ required: true, type: PerformanceSchema })
@@ -23,4 +31,7 @@ export class ResultDocument extends Document implements IResult {
 
 export const ResultSchema = SchemaFactory.createForClass(ResultDocument);
 
-export const ResultModel = mongoose.model<ResultDocument>('Result', ResultSchema);
+export const ResultModel = mongoose.model<ResultDocument>(
+  'Result',
+  ResultSchema,
+);

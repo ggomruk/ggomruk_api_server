@@ -3,7 +3,9 @@ import Redis from 'ioredis';
 import { RedisRepositoryInterface } from './interface/redis.repository.interface';
 
 @Injectable()
-export class RedisRepoistory implements OnModuleDestroy, RedisRepositoryInterface {
+export class RedisRepoistory
+  implements OnModuleDestroy, RedisRepositoryInterface
+{
   private readonly logger = new Logger(RedisRepoistory.name);
   constructor(@Inject('REDIS_CLIENT') private readonly redisClient: Redis) {}
   onModuleDestroy() {

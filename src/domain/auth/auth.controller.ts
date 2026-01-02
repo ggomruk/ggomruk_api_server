@@ -1,17 +1,23 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  UseGuards, 
-  Request, 
-  HttpCode, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  Request,
+  HttpCode,
   HttpStatus,
   Logger,
   Res,
-  Req
+  Req,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { UserDTO } from 'src/domain/user/dto/user.dto';
@@ -33,9 +39,15 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
-  @ApiOperation({ summary: 'User login', description: 'Authenticate user with username and password' })
+  @ApiOperation({
+    summary: 'User login',
+    description: 'Authenticate user with username and password',
+  })
   @ApiBody({ type: LoginDTO })
-  @ApiResponse({ status: 200, description: 'Login successful, returns access token and refresh token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful, returns access token and refresh token',
+  })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Request() req, @Body() loginDto: LoginDTO) {
     const result = await this.authService.login(req.user);
@@ -46,10 +58,16 @@ export class AuthController {
   @Public()
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'User registration', description: 'Create a new user account' })
+  @ApiOperation({
+    summary: 'User registration',
+    description: 'Create a new user account',
+  })
   @ApiBody({ type: UserDTO })
   @ApiResponse({ status: 201, description: 'Account created successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid input or username already exists' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input or username already exists',
+  })
   async signup(@Body() userDto: UserDTO) {
     const result = await this.authService.signup(userDto);
     this.logger.log(`User signed up successfully: ${userDto.username}`);
@@ -60,7 +78,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'User logout', description: 'Logout the authenticated user' })
+  @ApiOperation({
+    summary: 'User logout',
+    description: 'Logout the authenticated user',
+  })
   @ApiResponse({ status: 200, description: 'Logged out successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async logout(@Request() req) {
@@ -83,7 +104,7 @@ export class AuthController {
   async googleAuthRedirect(@Request() req, @Res() res: Response) {
     try {
       const result = await this.authService.googleLogin(req);
-      
+
       // Redirect to frontend with token
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       res.redirect(`${frontendUrl}/auth/callback?token=${result.access_token}`);
@@ -97,7 +118,10 @@ export class AuthController {
   @Get('profile')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Get user profile', description: 'Retrieve authenticated user profile information' })
+  @ApiOperation({
+    summary: 'Get user profile',
+    description: 'Retrieve authenticated user profile information',
+  })
   @ApiResponse({ status: 200, description: 'Profile retrieved successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getProfile(@Request() req) {
@@ -107,25 +131,34 @@ export class AuthController {
   @Get('verify')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Verify JWT token', description: 'Check if the JWT token is valid' })
+  @ApiOperation({
+    summary: 'Verify JWT token',
+    description: 'Check if the JWT token is valid',
+  })
   @ApiResponse({ status: 200, description: 'Token is valid' })
   @ApiResponse({ status: 401, description: 'Invalid or expired token' })
   async verifyToken(@Request() req) {
-    return GeneralResponse.success({ valid: true, user: req.user }, 'Token is valid');
+    return GeneralResponse.success(
+      { valid: true, user: req.user },
+      'Token is valid',
+    );
   }
 
   @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Refresh access token', description: 'Get a new access token using refresh token' })
-  @ApiBody({ 
-    schema: { 
-      type: 'object', 
-      properties: { 
-        refresh_token: { type: 'string', description: 'Refresh token' } 
+  @ApiOperation({
+    summary: 'Refresh access token',
+    description: 'Get a new access token using refresh token',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        refresh_token: { type: 'string', description: 'Refresh token' },
       },
-      required: ['refresh_token']
-    } 
+      required: ['refresh_token'],
+    },
   })
   @ApiResponse({ status: 200, description: 'New access token generated' })
   @ApiResponse({ status: 400, description: 'Refresh token is required' })
@@ -135,7 +168,7 @@ export class AuthController {
       if (!refreshToken) {
         return { ok: 0, error: 'Refresh token is required' };
       }
-      
+
       const result = await this.authService.refreshAccessToken(refreshToken);
       return { ok: 1, data: result };
     } catch (error) {

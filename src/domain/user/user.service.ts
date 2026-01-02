@@ -1,4 +1,9 @@
-import { Injectable, Logger, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './user.schema';
@@ -9,9 +14,7 @@ import * as bcrypt from 'bcryptjs';
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
-  constructor(
-    @InjectModel(User.name) private userModel: Model<User>,
-  ) {}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async findUser(username: string): Promise<User | null> {
     try {
@@ -97,14 +100,16 @@ export class UserService {
               displayName: profile.displayName,
               picture: profile.photos?.[0]?.value,
             },
-            { new: true }
+            { new: true },
           );
         }
       }
 
       return user;
     } catch (error) {
-      this.logger.error(`Error creating/updating Google user: ${error.message}`);
+      this.logger.error(
+        `Error creating/updating Google user: ${error.message}`,
+      );
       throw error;
     }
   }

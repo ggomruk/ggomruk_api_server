@@ -26,7 +26,10 @@ export class BacktestController {
     @Req() req: any,
   ): Promise<GeneralResponse<BacktestResponse>> {
     const userId = req.user?.userId || 'anonymous';
-    const result = await this.backtestService.runBacktest(backtestRequest, userId);
+    const result = await this.backtestService.runBacktest(
+      backtestRequest,
+      userId,
+    );
     return GeneralResponse.success(result, 'Backtest started successfully');
   }
 

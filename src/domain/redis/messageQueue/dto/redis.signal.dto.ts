@@ -1,2 +1,1 @@
-
-export default class RedisSignalDto {};
+export default class RedisSignalDto {}

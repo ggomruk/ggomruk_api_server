@@ -1,9 +1,21 @@
-import { IsString, IsArray, IsObject, IsNumber, Min, Max, ValidateNested, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsArray,
+  IsObject,
+  IsNumber,
+  Min,
+  Max,
+  ValidateNested,
+  IsOptional,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 class ParameterRange {
-  @ApiProperty({ description: 'Parameter name (e.g., rsiPeriod, macdFast)', example: 'rsiPeriod' })
+  @ApiProperty({
+    description: 'Parameter name (e.g., rsiPeriod, macdFast)',
+    example: 'rsiPeriod',
+  })
   @IsString()
   name: string;
 
@@ -40,26 +52,33 @@ export class OptimizeStrategyDTO {
   @IsString()
   endDate: string;
 
-  @ApiProperty({ description: 'Strategy names to optimize', example: ['RSI', 'MACD'] })
+  @ApiProperty({
+    description: 'Strategy names to optimize',
+    example: ['RSI', 'MACD'],
+  })
   @IsArray()
   @IsString({ each: true })
   strategies: string[];
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Parameter ranges to optimize',
     type: [ParameterRange],
     example: [
       { name: 'rsiPeriod', min: 5, max: 30, step: 5 },
       { name: 'rsiBuy', min: 20, max: 40, step: 5 },
-      { name: 'rsiSell', min: 60, max: 80, step: 5 }
-    ]
+      { name: 'rsiSell', min: 60, max: 80, step: 5 },
+    ],
   })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ParameterRange)
   paramRanges: ParameterRange[];
 
-  @ApiProperty({ description: 'Optimization metric', example: 'sharpe', enum: ['sharpe', 'return', 'profit_factor', 'win_rate'] })
+  @ApiProperty({
+    description: 'Optimization metric',
+    example: 'sharpe',
+    enum: ['sharpe', 'return', 'profit_factor', 'win_rate'],
+  })
   @IsString()
   metric: 'sharpe' | 'return' | 'profit_factor' | 'win_rate';
 
@@ -70,7 +89,11 @@ export class OptimizeStrategyDTO {
   @Max(125)
   leverage?: number;
 
-  @ApiProperty({ description: 'Commission rate', example: 0.001, required: false })
+  @ApiProperty({
+    description: 'Commission rate',
+    example: 0.001,
+    required: false,
+  })
   @IsOptional()
   @IsNumber()
   @Min(0)

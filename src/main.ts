@@ -17,7 +17,7 @@ async function bootstrap() {
   });
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('app.port')
+  const port = configService.get<number>('app.port');
   const apiPrefix = configService.get<string>('app.apiPrefix');
   const apiVersion = configService.get<string>('app.apiVersion');
   const corsOrigin = configService.get<string[]>('app.corsOrigin', [
@@ -29,16 +29,18 @@ async function bootstrap() {
 
   // Middleware
   app.use(compression());
-  app.use(helmet({
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
-    crossOriginEmbedderPolicy: false,
-  }));
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
   app.use(cookieParser());
 
   // CORS configuration
   app.enableCors({
     origin: corsOrigin,
-    methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
@@ -53,8 +55,8 @@ async function bootstrap() {
         enableImplicitConversion: true,
       },
       stopAtFirstError: false,
-    })
-  )
+    }),
+  );
 
   // Global Exception Filter
   app.useGlobalFilters(new AllExceptionsFilter());

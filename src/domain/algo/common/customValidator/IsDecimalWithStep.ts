@@ -12,7 +12,6 @@ export function IsDecimalWithStep(validationOptions?: ValidationOptions) {
       propertyName: propertyName,
       options: validationOptions,
       validator: {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         validate(value: any, args: ValidationArguments) {
           const min = 0.00001;
           const max = 2;

@@ -88,11 +88,11 @@ export class BacktestPubSubService implements OnModuleInit {
   private progressCallbacks: ((data: BacktestProgressMessage) => void)[] = [];
   private completeCallbacks: ((data: BacktestCompleteMessage) => void)[] = [];
   private errorCallbacks: ((data: BacktestCompleteMessage) => void)[] = [];
-  
+
   // Optimization callbacks
   private optimizationProgressCallbacks: ((data: any) => void)[] = [];
   private optimizationCompleteCallbacks: ((data: any) => void)[] = [];
-  
+
   // Walkforward callbacks
   private walkforwardProgressCallbacks: ((data: any) => void)[] = [];
   private walkforwardCompleteCallbacks: ((data: any) => void)[] = [];
@@ -106,7 +106,9 @@ export class BacktestPubSubService implements OnModuleInit {
 
   async onModuleInit() {
     await this.subscribeToChannels();
-    this.logger.log('BacktestPubSubService initialized and subscribed to channels');
+    this.logger.log(
+      'BacktestPubSubService initialized and subscribed to channels',
+    );
   }
 
   private setupErrorHandlers() {
@@ -143,7 +145,9 @@ export class BacktestPubSubService implements OnModuleInit {
         this.handleMessage(channel, message);
       });
 
-      this.logger.log(`Subscribed to channels: ${Object.values(this.CHANNELS).join(', ')}`);
+      this.logger.log(
+        `Subscribed to channels: ${Object.values(this.CHANNELS).join(', ')}`,
+      );
     } catch (error) {
       this.logger.error('Failed to subscribe to channels:', error);
       throw error;
@@ -153,48 +157,61 @@ export class BacktestPubSubService implements OnModuleInit {
   private handleMessage(channel: string, message: string) {
     try {
       const data = JSON.parse(message);
-      
+
       switch (channel) {
         case this.CHANNELS.PROGRESS:
-          this.logger.debug(`Progress update for backtest ${data.backtestId}: ${data.progress}%`);
-          this.progressCallbacks.forEach(cb => cb(data));
+          this.logger.debug(
+            `Progress update for backtest ${data.backtestId}: ${data.progress}%`,
+          );
+          this.progressCallbacks.forEach((cb) => cb(data));
           break;
-          
+
         case this.CHANNELS.COMPLETE:
-          this.logger.log(`Backtest ${data.backtestId} completed with status: ${data.status}`);
-          this.completeCallbacks.forEach(cb => cb(data));
+          this.logger.log(
+            `Backtest ${data.backtestId} completed with status: ${data.status}`,
+          );
+          this.completeCallbacks.forEach((cb) => cb(data));
           break;
-          
+
         case this.CHANNELS.ERROR:
-          this.logger.error(`Backtest ${data.backtestId} failed: ${data.error}`);
-          this.errorCallbacks.forEach(cb => cb(data));
+          this.logger.error(
+            `Backtest ${data.backtestId} failed: ${data.error}`,
+          );
+          this.errorCallbacks.forEach((cb) => cb(data));
           break;
 
         case this.CHANNELS.OPTIMIZATION_PROGRESS:
-          this.logger.debug(`Optimization progress for ${data.optimizationId}: ${data.progress}%`);
-          this.optimizationProgressCallbacks.forEach(cb => cb(data));
+          this.logger.debug(
+            `Optimization progress for ${data.optimizationId}: ${data.progress}%`,
+          );
+          this.optimizationProgressCallbacks.forEach((cb) => cb(data));
           break;
 
         case this.CHANNELS.OPTIMIZATION_COMPLETE:
           this.logger.log(`Optimization ${data.optimizationId} completed`);
-          this.optimizationCompleteCallbacks.forEach(cb => cb(data));
+          this.optimizationCompleteCallbacks.forEach((cb) => cb(data));
           break;
 
         case this.CHANNELS.WALKFORWARD_PROGRESS:
-          this.logger.debug(`Walkforward progress for ${data.walkforwardId}: ${data.progress}%`);
-          this.walkforwardProgressCallbacks.forEach(cb => cb(data));
+          this.logger.debug(
+            `Walkforward progress for ${data.walkforwardId}: ${data.progress}%`,
+          );
+          this.walkforwardProgressCallbacks.forEach((cb) => cb(data));
           break;
 
         case this.CHANNELS.WALKFORWARD_COMPLETE:
           this.logger.log(`Walkforward ${data.walkforwardId} completed`);
-          this.walkforwardCompleteCallbacks.forEach(cb => cb(data));
+          this.walkforwardCompleteCallbacks.forEach((cb) => cb(data));
           break;
-          
+
         default:
           this.logger.warn(`Unknown channel: ${channel}`);
       }
     } catch (error) {
-      this.logger.error(`Failed to parse message from channel ${channel}:`, error);
+      this.logger.error(
+        `Failed to parse message from channel ${channel}:`,
+        error,
+      );
     }
   }
 
@@ -207,11 +224,14 @@ export class BacktestPubSubService implements OnModuleInit {
         ...task,
         timestamp: new Date().toISOString(),
       });
-      
+
       await this.publisher.publish(this.CHANNELS.TASK, message);
       this.logger.log(`Published backtest task: ${task.backtestId}`);
     } catch (error) {
-      this.logger.error(`Failed to publish task for backtest ${task.backtestId}:`, error);
+      this.logger.error(
+        `Failed to publish task for backtest ${task.backtestId}:`,
+        error,
+      );
       throw error;
     }
   }
@@ -226,11 +246,14 @@ export class BacktestPubSubService implements OnModuleInit {
         ...task,
         timestamp: new Date().toISOString(),
       });
-      
+
       await this.publisher.publish(this.CHANNELS.OPTIMIZATION_TASK, message);
       this.logger.log(`Published optimization task: ${task.optimizationId}`);
     } catch (error) {
-      this.logger.error(`Failed to publish optimization task ${task.optimizationId}:`, error);
+      this.logger.error(
+        `Failed to publish optimization task ${task.optimizationId}:`,
+        error,
+      );
       throw error;
     }
   }
@@ -245,11 +268,14 @@ export class BacktestPubSubService implements OnModuleInit {
         ...task,
         timestamp: new Date().toISOString(),
       });
-      
+
       await this.publisher.publish(this.CHANNELS.WALKFORWARD_TASK, message);
       this.logger.log(`Published walk-forward task: ${task.analysisId}`);
     } catch (error) {
-      this.logger.error(`Failed to publish walk-forward task ${task.analysisId}:`, error);
+      this.logger.error(
+        `Failed to publish walk-forward task ${task.analysisId}:`,
+        error,
+      );
       throw error;
     }
   }
@@ -302,7 +328,7 @@ export class BacktestPubSubService implements OnModuleInit {
   onWalkforwardComplete(callback: (data: any) => void) {
     this.walkforwardCompleteCallbacks.push(callback);
   }
-  
+
   /**
    * Clean up Redis connections on module destroy
    */

@@ -8,29 +8,33 @@ import { I_SO, SODocument, SOSchema } from './so.schema';
 import mongoose, { Document } from 'mongoose';
 
 export interface IStrategies {
-    bb?: I_BB;
-    macd?: I_MACD;
-    rsi?: I_RSI;
-    rv?: I_RV;
-    sma?: I_SMA;
-    so?: I_SO;
-};
-
-@Schema({timestamps: false, _id: false})
-export class StrategiesDocument extends Document implements IStrategies {
-    @Prop({ required: false, type: BBSchema })
-    bb: BBDocument;
-    @Prop({ required: false, type: MACDSchema })
-    macd: MACDDocument;
-    @Prop({ required: false, type: RSISchema })
-    rsi: RSIDocument;
-    @Prop({ required: false, type: RVSchema })
-    rv: RVDocument;
-    @Prop({ required: false, type: SMASchema })
-    sma: SMADocument;
-    @Prop({ required: false, type: SOSchema })
-    so: SODocument;
+  bb?: I_BB;
+  macd?: I_MACD;
+  rsi?: I_RSI;
+  rv?: I_RV;
+  sma?: I_SMA;
+  so?: I_SO;
 }
 
-export const StrategiesSchema = SchemaFactory.createForClass(StrategiesDocument);
-export const StrategiesModel = mongoose.model<StrategiesDocument>('Strategies', StrategiesSchema);
+@Schema({ timestamps: false, _id: false })
+export class StrategiesDocument extends Document implements IStrategies {
+  @Prop({ required: false, type: BBSchema })
+  bb: BBDocument;
+  @Prop({ required: false, type: MACDSchema })
+  macd: MACDDocument;
+  @Prop({ required: false, type: RSISchema })
+  rsi: RSIDocument;
+  @Prop({ required: false, type: RVSchema })
+  rv: RVDocument;
+  @Prop({ required: false, type: SMASchema })
+  sma: SMADocument;
+  @Prop({ required: false, type: SOSchema })
+  so: SODocument;
+}
+
+export const StrategiesSchema =
+  SchemaFactory.createForClass(StrategiesDocument);
+export const StrategiesModel = mongoose.model<StrategiesDocument>(
+  'Strategies',
+  StrategiesSchema,
+);

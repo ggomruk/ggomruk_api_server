@@ -18,7 +18,6 @@ export class RV {
 
 @ValidatorConstraint({ async: true })
 export class RVParamsValidator implements ValidatorConstraintInterface {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(value: any, args: ValidationArguments) {
     return (
       value.return_thresh_low !== undefined &&

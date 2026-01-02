@@ -16,7 +16,6 @@ export class MACD {
 
 @ValidatorConstraint({ async: true })
 export class MACDParamsValidator implements ValidatorConstraintInterface {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(value: any, args: ValidationArguments) {
     return (
       value.ema_s !== undefined &&

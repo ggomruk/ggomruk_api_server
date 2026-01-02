@@ -3,18 +3,18 @@ import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CompareStrategiesDTO {
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Array of backtest IDs to compare',
-    example: ['uuid-1', 'uuid-2', 'uuid-3']
+    example: ['uuid-1', 'uuid-2', 'uuid-3'],
   })
   @IsArray()
   @IsString({ each: true })
   backtestIds: string[];
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Metrics to compare',
     example: ['total_return', 'sharpe_ratio', 'max_drawdown', 'win_rate'],
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsArray()

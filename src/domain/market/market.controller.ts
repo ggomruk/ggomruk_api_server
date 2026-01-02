@@ -23,7 +23,9 @@ export class MarketController {
   }
 
   @Get('ticker')
-  async getTicker(@Query('symbol') symbol: string): Promise<GeneralResponse<any>> {
+  async getTicker(
+    @Query('symbol') symbol: string,
+  ): Promise<GeneralResponse<any>> {
     const result = await this.marketService.getTicker(symbol);
     return GeneralResponse.success(result);
   }

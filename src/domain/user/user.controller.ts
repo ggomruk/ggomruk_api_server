@@ -19,29 +19,31 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('create')
-  async createUser(@Body(new UserValidationPipe()) userDTO: UserDTO): Promise<GeneralResponse<any>> {
-    console.log(userDTO)
+  async createUser(
+    @Body(new UserValidationPipe()) userDTO: UserDTO,
+  ): Promise<GeneralResponse<any>> {
+    console.log(userDTO);
     const result = await this.userService.createUser(userDTO);
     return GeneralResponse.success(result);
   }
 
   @Get('')
   getUser() {
-      return GeneralResponse.success(null);
+    return GeneralResponse.success(null);
   }
 
   @Get('userlist')
   getUserList() {
-      return GeneralResponse.success([]);
+    return GeneralResponse.success([]);
   }
 
   @Put('update')
   udpateUserInfo() {
-      return GeneralResponse.success(null);
+    return GeneralResponse.success(null);
   }
 
   @Delete('delete')
   deleteUser() {
-      return GeneralResponse.success(null);
+    return GeneralResponse.success(null);
   }
 }

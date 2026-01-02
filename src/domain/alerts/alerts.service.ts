@@ -24,7 +24,10 @@ export class AlertsService implements OnModuleInit {
   /**
    * Create a new price/signal alert
    */
-  async createAlert(userId: string, dto: CreateAlertDTO): Promise<AlertDocument> {
+  async createAlert(
+    userId: string,
+    dto: CreateAlertDTO,
+  ): Promise<AlertDocument> {
     const alert = new this.alertModel({
       userId,
       ...dto,
@@ -33,7 +36,7 @@ export class AlertsService implements OnModuleInit {
 
     await alert.save();
     this.logger.log(`Created alert ${alert._id} for user ${userId}`);
-    
+
     return alert;
   }
 
@@ -57,9 +60,9 @@ export class AlertsService implements OnModuleInit {
   async cancelAlert(userId: string, alertId: string): Promise<boolean> {
     const result = await this.alertModel.updateOne(
       { _id: alertId, userId },
-      { status: AlertStatus.CANCELLED }
+      { status: AlertStatus.CANCELLED },
     );
-    
+
     return result.modifiedCount > 0;
   }
 
@@ -77,8 +80,10 @@ export class AlertsService implements OnModuleInit {
   @Cron(CronExpression.EVERY_MINUTE)
   async checkAlerts() {
     try {
-      const activeAlerts = await this.alertModel.find({ status: AlertStatus.ACTIVE }).exec();
-      
+      const activeAlerts = await this.alertModel
+        .find({ status: AlertStatus.ACTIVE })
+        .exec();
+
       if (activeAlerts.length === 0) {
         return;
       }
@@ -86,21 +91,21 @@ export class AlertsService implements OnModuleInit {
       this.logger.debug(`Checking ${activeAlerts.length} active alerts`);
 
       // Get unique symbols
-      const symbols = [...new Set(activeAlerts.map(a => a.symbol))];
-      
+      const symbols = [...new Set(activeAlerts.map((a) => a.symbol))];
+
       // Fetch current prices
       await this.updatePrices(symbols);
 
       // Check each alert
       for (const alert of activeAlerts) {
         const currentPrice = this.priceCache.get(alert.symbol);
-        
+
         if (!currentPrice) {
           continue;
         }
 
         const shouldTrigger = this.checkAlertCondition(alert, currentPrice);
-        
+
         if (shouldTrigger) {
           await this.triggerAlert(alert, currentPrice);
         }
@@ -120,13 +125,15 @@ export class AlertsService implements OnModuleInit {
         try {
           const response = await axios.get(
             `https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`,
-            { timeout: 5000 }
+            { timeout: 5000 },
           );
-          
+
           const price = parseFloat(response.data.price);
           this.priceCache.set(symbol, price);
         } catch (error) {
-          this.logger.warn(`Failed to fetch price for ${symbol}: ${error.message}`);
+          this.logger.warn(
+            `Failed to fetch price for ${symbol}: ${error.message}`,
+          );
         }
       });
 
@@ -139,24 +146,27 @@ export class AlertsService implements OnModuleInit {
   /**
    * Check if alert condition is met
    */
-  private checkAlertCondition(alert: AlertDocument, currentPrice: number): boolean {
+  private checkAlertCondition(
+    alert: AlertDocument,
+    currentPrice: number,
+  ): boolean {
     switch (alert.alertType) {
       case AlertType.PRICE_ABOVE:
         return currentPrice >= alert.targetValue;
-      
+
       case AlertType.PRICE_BELOW:
         return currentPrice <= alert.targetValue;
-      
+
       case AlertType.PRICE_CHANGE_PERCENT:
         // Would need historical price data for this
         // Simplified: just check if price moved significantly
         return false; // Implement based on your needs
-      
+
       case AlertType.INDICATOR_SIGNAL:
         // Would need to calculate indicator values
         // This requires integration with your strategy indicators
         return false; // Implement based on your needs
-      
+
       default:
         return false;
     }
@@ -165,7 +175,10 @@ export class AlertsService implements OnModuleInit {
   /**
    * Trigger an alert - mark as triggered and notify user
    */
-  private async triggerAlert(alert: AlertDocument, currentPrice: number): Promise<void> {
+  private async triggerAlert(
+    alert: AlertDocument,
+    currentPrice: number,
+  ): Promise<void> {
     try {
       // Update alert status
       await this.alertModel.updateOne(
@@ -174,10 +187,12 @@ export class AlertsService implements OnModuleInit {
           status: AlertStatus.TRIGGERED,
           triggeredAt: new Date(),
           triggeredPrice: currentPrice,
-        }
+        },
       );
 
-      this.logger.log(`Alert ${alert._id} triggered for ${alert.symbol} at ${currentPrice}`);
+      this.logger.log(
+        `Alert ${alert._id} triggered for ${alert.symbol} at ${currentPrice}`,
+      );
 
       // Notify user via WebSocket
       this.websocketGateway.emitAlertTriggered(alert.userId, {
@@ -186,14 +201,17 @@ export class AlertsService implements OnModuleInit {
         alertType: alert.alertType,
         targetValue: alert.targetValue,
         currentPrice,
-        message: alert.message || `${alert.symbol} ${alert.alertType} ${alert.targetValue}`,
+        message:
+          alert.message ||
+          `${alert.symbol} ${alert.alertType} ${alert.targetValue}`,
         triggeredAt: new Date(),
       });
 
       // TODO: Send email/push notification if configured
-      
     } catch (error) {
-      this.logger.error(`Error triggering alert ${alert._id}: ${error.message}`);
+      this.logger.error(
+        `Error triggering alert ${alert._id}: ${error.message}`,
+      );
     }
   }
 
@@ -208,14 +226,16 @@ export class AlertsService implements OnModuleInit {
     try {
       const response = await axios.get(
         `https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`,
-        { timeout: 5000 }
+        { timeout: 5000 },
       );
-      
+
       const price = parseFloat(response.data.price);
       this.priceCache.set(symbol, price);
       return price;
     } catch (error) {
-      this.logger.error(`Failed to fetch price for ${symbol}: ${error.message}`);
+      this.logger.error(
+        `Failed to fetch price for ${symbol}: ${error.message}`,
+      );
       return null;
     }
   }
@@ -225,9 +245,18 @@ export class AlertsService implements OnModuleInit {
    */
   async getAlertStats(userId: string): Promise<any> {
     const all = await this.alertModel.countDocuments({ userId });
-    const active = await this.alertModel.countDocuments({ userId, status: AlertStatus.ACTIVE });
-    const triggered = await this.alertModel.countDocuments({ userId, status: AlertStatus.TRIGGERED });
-    const cancelled = await this.alertModel.countDocuments({ userId, status: AlertStatus.CANCELLED });
+    const active = await this.alertModel.countDocuments({
+      userId,
+      status: AlertStatus.ACTIVE,
+    });
+    const triggered = await this.alertModel.countDocuments({
+      userId,
+      status: AlertStatus.TRIGGERED,
+    });
+    const cancelled = await this.alertModel.countDocuments({
+      userId,
+      status: AlertStatus.CANCELLED,
+    });
 
     return {
       total: all,

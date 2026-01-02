@@ -14,7 +14,6 @@ export class BB {
 
 @ValidatorConstraint({ async: true })
 export class BBParamsValidator implements ValidatorConstraintInterface {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(value: any, args: ValidationArguments) {
     return value.sma !== undefined && value.dev !== undefined;
   }

@@ -22,24 +22,27 @@ export class AlgoService implements OnModuleInit {
     private readonly optimizationTaskService: OptimizationTaskService,
     private readonly optimizationResultService: OptimizationResultService,
     private readonly backtestPubSub: BacktestPubSubService,
-    private readonly websocketGateway: WebsocketGateway
+    private readonly websocketGateway: WebsocketGateway,
   ) {}
 
   onModuleInit() {
     this.backtestPubSub.onOptimizationComplete(async (data) => {
-      this.logger.log(`Optimization ${data.optimizationId} completed. Updating database.`);
+      this.logger.log(
+        `Optimization ${data.optimizationId} completed. Updating database.`,
+      );
       try {
         await this.optimizationTaskService.updateOptimizationStatus(
           data.optimizationId,
           'completed',
-          data.resultId
+          data.resultId,
         );
       } catch (error) {
-        this.logger.error(`Failed to update optimization status: ${error.message}`);
+        this.logger.error(
+          `Failed to update optimization status: ${error.message}`,
+        );
       }
     });
   }
-
 
   async runBacktest(data: BacktestDTO, userId: string) {
     const backtestId = uuidv4();
@@ -47,13 +50,20 @@ export class AlgoService implements OnModuleInit {
 
     // Insert backtest data if not exists
     try {
-      await this.backtestService.saveWithUidAndBacktestParams(backtestId, backtestParams, userId);
+      await this.backtestService.saveWithUidAndBacktestParams(
+        backtestId,
+        backtestParams,
+        userId,
+      );
       this.logger.log(`Saved backtest ${backtestId} to database`);
     } catch (error) {
       this.logger.error(`Failed to save backtest data: ${backtestId}`);
-      throw new AlgoException(AlgoExceptionCode.DUPLICATE_UID, 'Duplicate backtest exists');
+      throw new AlgoException(
+        AlgoExceptionCode.DUPLICATE_UID,
+        'Duplicate backtest exists',
+      );
     }
-    
+
     try {
       // Publish backtest task to analytics server via Redis Pub/Sub
       await this.backtestPubSub.publishTask({
@@ -79,7 +89,6 @@ export class AlgoService implements OnModuleInit {
         status: 'pending',
         params: backtestParams,
       });
-
     } catch (error) {
       this.logger.error(`Error while sending backtest data: ${error.message}`);
       throw new Error(error.message);
@@ -90,22 +99,22 @@ export class AlgoService implements OnModuleInit {
 
   async runOptimization(data: OptimizeDTO, userId: string) {
     const optimizationId = uuidv4();
-    
+
     const optimizationParams = {
       symbol: data.symbol,
       interval: data.interval,
       startDate: data.startDate,
       endDate: data.endDate,
-      strategies: data.strategies.map(s => ({
+      strategies: data.strategies.map((s) => ({
         id: s.id,
         type: s.type,
-        parameters: s.parameters.map(p => ({
+        parameters: s.parameters.map((p) => ({
           name: p.name,
           min: Number(p.min),
           max: Number(p.max),
-          step: Number(p.step)
-        }))
-      }))
+          step: Number(p.step),
+        })),
+      })),
     };
 
     // Save optimization request to database
@@ -113,28 +122,32 @@ export class AlgoService implements OnModuleInit {
       await this.optimizationTaskService.createOptimizationTask(
         optimizationId,
         userId,
-        optimizationParams
+        optimizationParams,
       );
       this.logger.log(`Saved optimization task ${optimizationId} to database`);
     } catch (error) {
-      this.logger.error(`Failed to save optimization task: ${optimizationId}`, error);
+      this.logger.error(
+        `Failed to save optimization task: ${optimizationId}`,
+        error,
+      );
       throw new Error('Failed to save optimization task');
     }
-    
+
     try {
       await this.backtestPubSub.publishOptimizationTask({
         optimizationId,
         userId,
-        params: optimizationParams
+        params: optimizationParams,
       });
 
       this.logger.log(`Published optimization task ${optimizationId} to Redis`);
-      
+
       // Notify client via WebSocket
       // this.websocketGateway.emitOptimizationStarted(...)
-
     } catch (error) {
-      this.logger.error(`Error while sending optimization data: ${error.message}`);
+      this.logger.error(
+        `Error while sending optimization data: ${error.message}`,
+      );
       throw new Error(error.message);
     }
 
@@ -142,14 +155,15 @@ export class AlgoService implements OnModuleInit {
   }
 
   async registerSignal(data: SignalDTO) {
-    const uid = uuidv4(); 
-    let signalParams = data.toSignalParams()
+    const uid = uuidv4();
+    let signalParams = data.toSignalParams();
   }
 
   async getUserOptimizations(userId: string) {
     try {
-      const tasks = await this.optimizationTaskService.getUserOptimizationTasks(userId);
-      return tasks.map(task => ({
+      const tasks =
+        await this.optimizationTaskService.getUserOptimizationTasks(userId);
+      return tasks.map((task) => ({
         optimizationId: task.optimizationId,
         userId: task.userId,
         status: task.status,
@@ -166,18 +180,20 @@ export class AlgoService implements OnModuleInit {
 
   async getOptimizationResult(optimizationId: string, userId: string) {
     try {
-      const result = await this.optimizationResultService.getOptimizationResult(optimizationId);
+      const result =
+        await this.optimizationResultService.getOptimizationResult(
+          optimizationId,
+        );
 
       if (!result) {
         throw new Error('Optimization result not found');
       }
-      
+
       if (result.userId !== userId) {
         throw new Error('Unauthorized access to optimization result');
       }
 
       return result;
-
     } catch (error) {
       this.logger.error(`Failed to get optimization result: ${error.message}`);
       throw error;
@@ -186,10 +202,13 @@ export class AlgoService implements OnModuleInit {
 
   async getUserBacktests(userId: string, limit: number = 50) {
     try {
-      const backtests = await this.backtestService.getUserBacktests(userId, limit);
-      
+      const backtests = await this.backtestService.getUserBacktests(
+        userId,
+        limit,
+      );
+
       // Transform to API response format
-      return backtests.map(bt => ({
+      return backtests.map((bt) => ({
         backtestId: bt._id,
         userId: bt.uid,
         status: bt.result ? 'completed' : 'pending',
@@ -207,7 +226,7 @@ export class AlgoService implements OnModuleInit {
   async getBacktestById(backtestId: string, userId: string) {
     try {
       const backtest = await this.backtestService.getBacktestById(backtestId);
-      
+
       if (!backtest) {
         throw new Error('Backtest not found');
       }

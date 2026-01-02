@@ -18,7 +18,7 @@ const logger = new Logger('Redis Provider');
  */
 function createRedisOptions(configService: ConfigService): any {
   const redisConfig = configService.get('redis');
-  
+
   const options: any = {
     host: redisConfig.host,
     port: redisConfig.port,
@@ -48,15 +48,15 @@ export const RedisPublisherProvider: Provider = {
   useFactory: (configService: ConfigService) => {
     const options = createRedisOptions(configService);
     const client = new Redis(options);
-    
+
     client.on('connect', () => {
       console.log('✅ Redis Publisher connected');
     });
-    
+
     client.on('error', (err) => {
       console.error('❌ Redis Publisher error:', err.message);
     });
-    
+
     return client;
   },
   inject: [ConfigService],
@@ -71,15 +71,15 @@ export const RedisSubscriberProvider: Provider = {
   useFactory: (configService: ConfigService) => {
     const options = createRedisOptions(configService);
     const client = new Redis(options);
-    
+
     client.on('connect', () => {
       logger.debug('✅ Redis Subscriber connected');
     });
-    
+
     client.on('error', (err) => {
       logger.error('❌ Redis Subscriber error:', err.message);
     });
-    
+
     return client;
   },
   inject: [ConfigService],
@@ -94,15 +94,15 @@ export const RedisClientProvider: Provider = {
   useFactory: (configService: ConfigService) => {
     const options = createRedisOptions(configService);
     const client = new Redis(options);
-    
+
     client.on('connect', () => {
       logger.debug('✅ Redis Client connected');
     });
-    
+
     client.on('error', (err) => {
       logger.error('❌ Redis Client error:', err.message);
     });
-    
+
     return client;
   },
   inject: [ConfigService],

@@ -1,4 +1,10 @@
-import { IsString, IsNumber, IsEnum, IsOptional, IsObject } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsOptional,
+  IsObject,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum AlertType {
@@ -19,24 +25,35 @@ export class CreateAlertDTO {
   @IsString()
   symbol: string;
 
-  @ApiProperty({ description: 'Alert type', enum: AlertType, example: AlertType.PRICE_ABOVE })
+  @ApiProperty({
+    description: 'Alert type',
+    enum: AlertType,
+    example: AlertType.PRICE_ABOVE,
+  })
   @IsEnum(AlertType)
   alertType: AlertType;
 
-  @ApiProperty({ description: 'Target value (price or percentage)', example: 50000 })
+  @ApiProperty({
+    description: 'Target value (price or percentage)',
+    example: 50000,
+  })
   @IsNumber()
   targetValue: number;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Indicator parameters for indicator_signal type',
     example: { indicator: 'RSI', period: 14, threshold: 30 },
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsObject()
   indicatorParams?: Record<string, any>;
 
-  @ApiProperty({ description: 'Alert message/description', example: 'BTC reached $50,000', required: false })
+  @ApiProperty({
+    description: 'Alert message/description',
+    example: 'BTC reached $50,000',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   message?: string;

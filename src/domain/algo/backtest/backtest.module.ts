@@ -10,10 +10,10 @@ import { BacktestSchemaRepository } from './backtest.repository';
 
 @Module({
   imports: [
-    ConfigModule, 
+    ConfigModule,
     RedisMessageQueueModule,
     WebsocketModule,
-    MongooseModule.forFeature([{ name: 'Backtest', schema: BacktestSchema }])
+    MongooseModule.forFeature([{ name: 'Backtest', schema: BacktestSchema }]),
   ],
   controllers: [BacktestController],
   providers: [BacktestService, BacktestSchemaRepository],

@@ -1,5 +1,19 @@
-import { Controller, Post, Get, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Get,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AlertsService } from './alerts.service';
 import { CreateAlertDTO } from './dto/create-alert.dto';
 import { JwtAuthGuard } from 'src/domain/auth/guards/jwt-auth.guard';
@@ -13,9 +27,10 @@ export class AlertsController {
   constructor(private readonly alertsService: AlertsService) {}
 
   @Post()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Create a price or signal alert',
-    description: 'Set up an alert to be notified when price or indicator conditions are met.'
+    description:
+      'Set up an alert to be notified when price or indicator conditions are met.',
   })
   @ApiResponse({ status: 201, description: 'Alert created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid parameters' })
@@ -29,9 +44,9 @@ export class AlertsController {
   }
 
   @Get()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get all alerts for the current user',
-    description: 'Retrieve all alerts (active, triggered, and cancelled).'
+    description: 'Retrieve all alerts (active, triggered, and cancelled).',
   })
   @ApiResponse({ status: 200, description: 'Alerts retrieved successfully' })
   async getUserAlerts(@Request() req: any): Promise<GeneralResponse<any>> {
@@ -41,9 +56,10 @@ export class AlertsController {
   }
 
   @Get('active')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get active alerts only',
-    description: 'Retrieve only alerts that are currently active and monitoring.'
+    description:
+      'Retrieve only alerts that are currently active and monitoring.',
   })
   @ApiResponse({ status: 200, description: 'Active alerts retrieved' })
   async getActiveAlerts(@Request() req: any): Promise<GeneralResponse<any>> {
@@ -53,9 +69,10 @@ export class AlertsController {
   }
 
   @Get('stats')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get alert statistics',
-    description: 'Get counts of total, active, triggered, and cancelled alerts.'
+    description:
+      'Get counts of total, active, triggered, and cancelled alerts.',
   })
   @ApiResponse({ status: 200, description: 'Statistics retrieved' })
   async getAlertStats(@Request() req: any): Promise<GeneralResponse<any>> {
@@ -65,20 +82,22 @@ export class AlertsController {
   }
 
   @Get('price/:symbol')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get current price for a symbol',
-    description: 'Fetch the latest price from the price cache or Binance API.'
+    description: 'Fetch the latest price from the price cache or Binance API.',
   })
   @ApiResponse({ status: 200, description: 'Price retrieved' })
-  async getCurrentPrice(@Param('symbol') symbol: string): Promise<GeneralResponse<any>> {
+  async getCurrentPrice(
+    @Param('symbol') symbol: string,
+  ): Promise<GeneralResponse<any>> {
     const price = await this.alertsService.getCurrentPrice(symbol);
     return GeneralResponse.success({ symbol, price, timestamp: new Date() });
   }
 
   @Post(':id/cancel')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Cancel an alert',
-    description: 'Cancel an active alert without deleting it.'
+    description: 'Cancel an active alert without deleting it.',
   })
   @ApiResponse({ status: 200, description: 'Alert cancelled' })
   @ApiResponse({ status: 404, description: 'Alert not found' })
@@ -92,9 +111,9 @@ export class AlertsController {
   }
 
   @Delete(':id')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Delete an alert',
-    description: 'Permanently delete an alert.'
+    description: 'Permanently delete an alert.',
   })
   @ApiResponse({ status: 200, description: 'Alert deleted' })
   @ApiResponse({ status: 404, description: 'Alert not found' })

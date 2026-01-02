@@ -7,7 +7,7 @@ import { UserDTO } from 'src/domain/user/dto/user.dto';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
-  
+
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
@@ -21,34 +21,39 @@ export class AuthService {
       return null;
     }
 
-    const isPasswordValid = await this.userService.validatePassword(user, password);
+    const isPasswordValid = await this.userService.validatePassword(
+      user,
+      password,
+    );
     if (isPasswordValid) {
       const { password, ...result } = user.toObject();
       return result;
     }
-    
+
     this.logger.warn(`Invalid password for user: ${username}`);
     return null;
   }
 
   async login(user: any) {
-    const payload = { 
-      username: user.username, 
+    const payload = {
+      username: user.username,
       sub: user._id,
-      email: user.email 
+      email: user.email,
     };
-    
+
     // Generate access token (uses JwtModule config)
     const access_token = this.jwtService.sign(payload);
-    
+
     // Generate refresh token with different secret and longer expiration
     const refresh_token = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('auth.jwtRefreshSecret'),
-      expiresIn: this.configService.get<string>('auth.jwtRefreshExpiresIn') as any,
+      expiresIn: this.configService.get<string>(
+        'auth.jwtRefreshExpiresIn',
+      ) as any,
     });
-    
+
     this.logger.log(`User logged in: ${user.username}`);
-    
+
     return {
       access_token,
       refresh_token,
@@ -66,9 +71,9 @@ export class AuthService {
     try {
       const user = await this.userService.createUser(userDto);
       const { password, ...result } = user.toObject();
-      
+
       this.logger.log(`New user registered: ${user.username}`);
-      
+
       return this.login(result);
     } catch (error) {
       this.logger.error(`Signup error: ${error.message}`);
@@ -83,9 +88,9 @@ export class AuthService {
 
     const user = await this.userService.createOrUpdateGoogleUser(req.user);
     const { password, ...result } = user.toObject();
-    
+
     this.logger.log(`Google OAuth login: ${user.email}`);
-    
+
     return this.login(result);
   }
 

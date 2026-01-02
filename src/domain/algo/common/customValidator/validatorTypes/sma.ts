@@ -16,7 +16,6 @@ export class SMA {
 
 @ValidatorConstraint({ async: true })
 export class SMAParamsValidator implements ValidatorConstraintInterface {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   validate(value: any, args: ValidationArguments) {
     return (
       value.sma_s !== undefined &&

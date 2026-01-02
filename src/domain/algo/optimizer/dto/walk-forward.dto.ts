@@ -34,13 +34,20 @@ export class WalkForwardDTO {
   @Max(180)
   testingWindow: number;
 
-  @ApiProperty({ description: 'Step size in days (how much to roll forward)', example: 30 })
+  @ApiProperty({
+    description: 'Step size in days (how much to roll forward)',
+    example: 30,
+  })
   @IsNumber()
   @Min(1)
   @Max(90)
   stepSize: number;
 
-  @ApiProperty({ description: 'Strategy parameters as JSON', example: { rsiPeriod: 14, rsiBuy: 30, rsiSell: 70 }, required: false })
+  @ApiProperty({
+    description: 'Strategy parameters as JSON',
+    example: { rsiPeriod: 14, rsiBuy: 30, rsiSell: 70 },
+    required: false,
+  })
   @IsOptional()
   strategyParams?: Record<string, any>;
 
@@ -51,7 +58,11 @@ export class WalkForwardDTO {
   @Max(125)
   leverage?: number;
 
-  @ApiProperty({ description: 'Commission rate', example: 0.001, required: false })
+  @ApiProperty({
+    description: 'Commission rate',
+    example: 0.001,
+    required: false,
+  })
   @IsOptional()
   @IsNumber()
   commission?: number;

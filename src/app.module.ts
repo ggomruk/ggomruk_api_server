@@ -6,14 +6,12 @@ import envValidation from './config/config.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerModule } from '@nestjs/throttler';
 import * as dotenv from 'dotenv';
-// import { RedisModule } from './redis/redis.module';
-import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { WebsocketModule } from './domain/websocket/websocket.module';
 import { RedisModule } from './domain/redis/redis.module';
 import { OptimizerModule } from './domain/algo/optimizer/optimizer.module';
 import { AlertsModule } from './domain/alerts/alerts.module';
 import { MarketModule } from './domain/market/market.module';
-import configuration from './config'
+import configuration from './config';
 import { LoggerMiddleware } from './common/middleware';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './domain/auth/guards/jwt-auth.guard';
@@ -29,7 +27,7 @@ const logger = new Logger('App Module');
       envFilePath: '.env',
       cache: true,
       isGlobal: true,
-      load: configuration
+      load: configuration,
     }),
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => {
@@ -46,20 +44,20 @@ const logger = new Logger('App Module');
     }),
     ThrottlerModule.forRoot([
       {
-				name: 'short',
-				ttl: 1000,
-				limit: 3,
-			},
-			{
-				name: 'medium',
-				ttl: 10000,
-				limit: 20,
-			},
-			{
-				name: 'long',
-				ttl: 60000,
-				limit: 100,
-			},
+        name: 'short',
+        ttl: 1000,
+        limit: 3,
+      },
+      {
+        name: 'medium',
+        ttl: 10000,
+        limit: 20,
+      },
+      {
+        name: 'long',
+        ttl: 60000,
+        limit: 100,
+      },
     ]),
     RedisModule,
     WebsocketModule,
@@ -72,9 +70,9 @@ const logger = new Logger('App Module');
   providers: [
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard
-    }
-  ]
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

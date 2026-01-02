@@ -30,11 +30,14 @@ export class OptimizerService {
    * Strategy Optimizer - Grid search to find optimal parameters
    * NOW: Publishes single task to analytics server (NEW REDIS CHANNEL)
    */
-  async optimizeStrategy(dto: OptimizeStrategyDTO, userId: string): Promise<{ optimizationId: string }> {
+  async optimizeStrategy(
+    dto: OptimizeStrategyDTO,
+    userId: string,
+  ): Promise<{ optimizationId: string }> {
     const optimizationId = uuidv4();
-    
+
     this.logger.log(`Starting optimization ${optimizationId}`);
-    
+
     // Initialize optimization tracking
     this.optimizations.set(optimizationId, {
       optimizationId,
@@ -55,16 +58,18 @@ export class OptimizerService {
           interval: dto.interval,
           startDate: dto.startDate,
           endDate: dto.endDate,
-          strategies: [{
-            id: dto.strategies[0],
-            type: dto.strategies[0],
-            parameters: dto.paramRanges.map(p => ({
-              name: p.name,
-              min: p.min,
-              max: p.max,
-              step: p.step
-            }))
-          }],
+          strategies: [
+            {
+              id: dto.strategies[0],
+              type: dto.strategies[0],
+              parameters: dto.paramRanges.map((p) => ({
+                name: p.name,
+                min: p.min,
+                max: p.max,
+                step: p.step,
+              })),
+            },
+          ],
           metric: dto.metric || 'sharpe_ratio',
           leverage: dto.leverage || 1,
           tc: dto.commission || 0.001,
@@ -74,7 +79,9 @@ export class OptimizerService {
 
       this.logger.log(`Optimization task published for ${optimizationId}`);
     } catch (error) {
-      this.logger.error(`Failed to publish optimization task: ${error.message}`);
+      this.logger.error(
+        `Failed to publish optimization task: ${error.message}`,
+      );
       const opt = this.optimizations.get(optimizationId);
       if (opt) {
         opt.status = 'failed';
@@ -89,14 +96,17 @@ export class OptimizerService {
    * Get optimization status and results
    * NOW: Fetches from MongoDB (analytics server saves results there)
    */
-  async getOptimizationStatus(optimizationId: string): Promise<OptimizationResult | null> {
+  async getOptimizationStatus(
+    optimizationId: string,
+  ): Promise<OptimizationResult | null> {
     // First check in-memory (for status tracking)
     const inMemory = this.optimizations.get(optimizationId);
-    
+
     // Try to fetch completed results from MongoDB
     try {
-      const result = await this.backtestService.getOptimizationResult(optimizationId);
-      
+      const result =
+        await this.backtestService.getOptimizationResult(optimizationId);
+
       if (result) {
         // Convert from MongoDB format to our interface
         return {
@@ -110,9 +120,11 @@ export class OptimizerService {
         };
       }
     } catch (error) {
-      this.logger.error(`Failed to fetch optimization result: ${error.message}`);
+      this.logger.error(
+        `Failed to fetch optimization result: ${error.message}`,
+      );
     }
-    
+
     // Fallback to in-memory status
     return inMemory || null;
   }
@@ -122,40 +134,52 @@ export class OptimizerService {
    */
   async compareStrategies(dto: CompareStrategiesDTO): Promise<any> {
     const backtests = await Promise.all(
-      dto.backtestIds.map(id => this.backtestService.getBacktestById(id))
+      dto.backtestIds.map((id) => this.backtestService.getBacktestById(id)),
     );
 
     // Filter out null results
-    const validBacktests = backtests.filter(bt => bt !== null);
+    const validBacktests = backtests.filter((bt) => bt !== null);
 
     if (validBacktests.length === 0) {
       throw new Error('No valid backtests found');
     }
 
     // Extract metrics for comparison
-    const comparison = validBacktests.map(bt => {
+    const comparison = validBacktests.map((bt) => {
       const result = bt.result as any;
-      const leveragedPerf = result?.levered_performance || result?.leveragedPerformance || {};
+      const leveragedPerf =
+        result?.levered_performance || result?.leveragedPerformance || {};
       const performance = result?.performance || {};
 
       return {
         backtestId: bt._id,
-        strategyName: result?.strategy_name || result?.strategyName || 'Unknown',
+        strategyName:
+          result?.strategy_name || result?.strategyName || 'Unknown',
         params: bt.backtestParams,
         metrics: {
-          total_return: leveragedPerf.total_return || leveragedPerf.totalReturn || 0,
-          sharpe_ratio: leveragedPerf.sharpe_ratio || leveragedPerf.sharpeRatio || 0,
-          max_drawdown: leveragedPerf.max_drawdown || leveragedPerf.maxDrawdown || 0,
+          total_return:
+            leveragedPerf.total_return || leveragedPerf.totalReturn || 0,
+          sharpe_ratio:
+            leveragedPerf.sharpe_ratio || leveragedPerf.sharpeRatio || 0,
+          max_drawdown:
+            leveragedPerf.max_drawdown || leveragedPerf.maxDrawdown || 0,
           win_rate: performance.win_rate || performance.winRate || 0,
-          profit_factor: performance.profit_factor || performance.profitFactor || 0,
-          total_trades: performance.total_trades || performance.totalTrades || 0,
-          avg_trade_return: performance.avg_trade_return || performance.avgTradeReturn || 0,
+          profit_factor:
+            performance.profit_factor || performance.profitFactor || 0,
+          total_trades:
+            performance.total_trades || performance.totalTrades || 0,
+          avg_trade_return:
+            performance.avg_trade_return || performance.avgTradeReturn || 0,
         },
       };
     });
 
     // Calculate rankings
-    const metricsToRank = dto.metrics || ['total_return', 'sharpe_ratio', 'win_rate'];
+    const metricsToRank = dto.metrics || [
+      'total_return',
+      'sharpe_ratio',
+      'win_rate',
+    ];
     const rankings = this.calculateRankings(comparison, metricsToRank);
 
     return {
@@ -172,9 +196,12 @@ export class OptimizerService {
    * Walk-Forward Analysis
    * NOW: Publishes single task to analytics server (NEW REDIS CHANNEL)
    */
-  async walkForwardAnalysis(dto: WalkForwardDTO, userId: string): Promise<{ analysisId: string }> {
+  async walkForwardAnalysis(
+    dto: WalkForwardDTO,
+    userId: string,
+  ): Promise<{ analysisId: string }> {
     const analysisId = uuidv4();
-    
+
     this.logger.log(`Starting walk-forward analysis ${analysisId}`);
 
     // Publish walk-forward task to analytics server (NEW APPROACH)
@@ -201,7 +228,9 @@ export class OptimizerService {
 
       this.logger.log(`Walk-forward task published for ${analysisId}`);
     } catch (error) {
-      this.logger.error(`Failed to publish walk-forward task: ${error.message}`);
+      this.logger.error(
+        `Failed to publish walk-forward task: ${error.message}`,
+      );
       throw error;
     }
 
@@ -214,10 +243,13 @@ export class OptimizerService {
    */
   async getWalkForwardResults(analysisId: string): Promise<any> {
     try {
-      const result = await this.backtestService.getWalkForwardResult(analysisId);
+      const result =
+        await this.backtestService.getWalkForwardResult(analysisId);
       return result;
     } catch (error) {
-      this.logger.error(`Failed to fetch walk-forward result: ${error.message}`);
+      this.logger.error(
+        `Failed to fetch walk-forward result: ${error.message}`,
+      );
       return null;
     }
   }
@@ -226,7 +258,7 @@ export class OptimizerService {
 
   private generateParameterCombinations(ranges: any[]): any[] {
     const combinations: any[] = [];
-    
+
     const generate = (index: number, current: any) => {
       if (index === ranges.length) {
         combinations.push({ ...current });
@@ -248,7 +280,7 @@ export class OptimizerService {
     optimizationId: string,
     dto: OptimizeStrategyDTO,
     userId: string,
-    combinations: any[]
+    combinations: any[],
   ) {
     const results: any[] = [];
 
@@ -290,7 +322,7 @@ export class OptimizerService {
         }
 
         // Small delay to avoid overwhelming the system
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (error) {
         this.logger.error(`Failed to run combination: ${error.message}`);
       }
@@ -300,7 +332,11 @@ export class OptimizerService {
     await this.waitForBacktestsCompletion(optimizationId, results, dto.metric);
   }
 
-  private async waitForBacktestsCompletion(optimizationId: string, results: any[], metric: string) {
+  private async waitForBacktestsCompletion(
+    optimizationId: string,
+    results: any[],
+    metric: string,
+  ) {
     const maxWaitTime = 30 * 60 * 1000; // 30 minutes
     const pollInterval = 5000; // 5 seconds
     const startTime = Date.now();
@@ -310,7 +346,9 @@ export class OptimizerService {
 
       for (const result of results) {
         if (!result.completed) {
-          const backtest = await this.backtestService.getBacktestById(result.backtestId);
+          const backtest = await this.backtestService.getBacktestById(
+            result.backtestId,
+          );
           if (backtest?.result) {
             result.completed = true;
             result.metricValue = this.extractMetric(backtest.result, metric);
@@ -324,14 +362,14 @@ export class OptimizerService {
         break;
       }
 
-      await new Promise(resolve => setTimeout(resolve, pollInterval));
+      await new Promise((resolve) => setTimeout(resolve, pollInterval));
     }
 
     // Find best result
-    const completedResults = results.filter(r => r.completed);
+    const completedResults = results.filter((r) => r.completed);
     if (completedResults.length > 0) {
-      const bestResult = completedResults.reduce((best, current) => 
-        current.metricValue > best.metricValue ? current : best
+      const bestResult = completedResults.reduce((best, current) =>
+        current.metricValue > best.metricValue ? current : best,
       );
 
       const opt = this.optimizations.get(optimizationId);
@@ -345,7 +383,8 @@ export class OptimizerService {
   }
 
   private extractMetric(result: any, metric: string): number {
-    const leveragedPerf = result.levered_performance || result.leveragedPerformance || {};
+    const leveragedPerf =
+      result.levered_performance || result.leveragedPerformance || {};
     const performance = result.performance || {};
 
     switch (metric) {
@@ -364,9 +403,9 @@ export class OptimizerService {
 
   private calculateRankings(comparison: any[], metrics: string[]): any[] {
     // Calculate score for each backtest
-    const scored = comparison.map(bt => {
+    const scored = comparison.map((bt) => {
       let totalScore = 0;
-      metrics.forEach(metric => {
+      metrics.forEach((metric) => {
         const value = bt.metrics[metric] || 0;
         totalScore += value;
       });
@@ -385,8 +424,13 @@ export class OptimizerService {
     endDate: Date,
     trainingDays: number,
     testingDays: number,
-    stepDays: number
-  ): Array<{ trainStart: Date; trainEnd: Date; testStart: Date; testEnd: Date }> {
+    stepDays: number,
+  ): Array<{
+    trainStart: Date;
+    trainEnd: Date;
+    testStart: Date;
+    testEnd: Date;
+  }> {
     const windows: Array<any> = [];
     let currentStart = new Date(startDate);
 
@@ -419,7 +463,7 @@ export class OptimizerService {
     analysisId: string,
     dto: WalkForwardDTO,
     userId: string,
-    windows: any[]
+    windows: any[],
   ) {
     const results: any[] = [];
 
@@ -466,10 +510,12 @@ export class OptimizerService {
         testBacktestId,
       });
 
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 200));
     }
 
     // Store results (in production, save to database)
-    this.logger.log(`Walk-forward analysis ${analysisId} completed with ${results.length} windows`);
+    this.logger.log(
+      `Walk-forward analysis ${analysisId} completed with ${results.length} windows`,
+    );
   }
 }
