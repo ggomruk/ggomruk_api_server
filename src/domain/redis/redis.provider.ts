@@ -1,4 +1,4 @@
-import { Provider } from '@nestjs/common';
+import { Logger, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
@@ -10,6 +10,8 @@ import Redis from 'ioredis';
 export const REDIS_PUBLISHER = 'REDIS_PUBLISHER';
 export const REDIS_SUBSCRIBER = 'REDIS_SUBSCRIBER';
 export const REDIS_CLIENT = 'REDIS_CLIENT';
+
+const logger = new Logger('Redis Provider');
 
 /**
  * Factory function to create Redis connection options
@@ -71,11 +73,11 @@ export const RedisSubscriberProvider: Provider = {
     const client = new Redis(options);
     
     client.on('connect', () => {
-      console.log('✅ Redis Subscriber connected');
+      logger.debug('✅ Redis Subscriber connected');
     });
     
     client.on('error', (err) => {
-      console.error('❌ Redis Subscriber error:', err.message);
+      logger.error('❌ Redis Subscriber error:', err.message);
     });
     
     return client;
@@ -94,11 +96,11 @@ export const RedisClientProvider: Provider = {
     const client = new Redis(options);
     
     client.on('connect', () => {
-      console.log('✅ Redis Client connected');
+      logger.debug('✅ Redis Client connected');
     });
     
     client.on('error', (err) => {
-      console.error('❌ Redis Client error:', err.message);
+      logger.error('❌ Redis Client error:', err.message);
     });
     
     return client;

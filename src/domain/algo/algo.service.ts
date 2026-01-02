@@ -164,9 +164,20 @@ export class AlgoService implements OnModuleInit {
     }
   }
 
-  async getOptimizationResult(optimizationId: string) {
+  async getOptimizationResult(optimizationId: string, userId: string) {
     try {
-      return await this.optimizationResultService.getOptimizationResult(optimizationId);
+      const result = await this.optimizationResultService.getOptimizationResult(optimizationId);
+
+      if (!result) {
+        throw new Error('Optimization result not found');
+      }
+      
+      if (result.userId !== userId) {
+        throw new Error('Unauthorized access to optimization result');
+      }
+
+      return result;
+
     } catch (error) {
       this.logger.error(`Failed to get optimization result: ${error.message}`);
       throw error;
@@ -193,12 +204,15 @@ export class AlgoService implements OnModuleInit {
     }
   }
 
-  async getBacktestById(backtestId: string) {
+  async getBacktestById(backtestId: string, userId: string) {
     try {
       const backtest = await this.backtestService.getBacktestById(backtestId);
       
       if (!backtest) {
-        return null;
+        throw new Error('Backtest not found');
+      }
+      if (backtest.uid !== userId) {
+        throw new Error('Unauthorized access to backtest');
       }
 
       return {

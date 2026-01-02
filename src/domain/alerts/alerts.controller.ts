@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { AlertsService } from './alerts.service';
 import { CreateAlertDTO } from './dto/create-alert.dto';
 import { JwtAuthGuard } from 'src/domain/auth/guards/jwt-auth.guard';
+import { GeneralResponse } from 'src/common/dto/general-response.dto';
 
 @ApiTags('Alerts')
 @Controller('alerts')
@@ -21,9 +22,10 @@ export class AlertsController {
   async createAlert(
     @Body() dto: CreateAlertDTO,
     @Request() req: any,
-  ) {
+  ): Promise<GeneralResponse<any>> {
     const userId = req.user.userId;
-    return this.alertsService.createAlert(userId, dto);
+    const result = await this.alertsService.createAlert(userId, dto);
+    return GeneralResponse.success(result);
   }
 
   @Get()
@@ -32,9 +34,10 @@ export class AlertsController {
     description: 'Retrieve all alerts (active, triggered, and cancelled).'
   })
   @ApiResponse({ status: 200, description: 'Alerts retrieved successfully' })
-  async getUserAlerts(@Request() req: any) {
+  async getUserAlerts(@Request() req: any): Promise<GeneralResponse<any>> {
     const userId = req.user.userId;
-    return this.alertsService.getUserAlerts(userId);
+    const result = await this.alertsService.getUserAlerts(userId);
+    return GeneralResponse.success(result);
   }
 
   @Get('active')
@@ -43,9 +46,10 @@ export class AlertsController {
     description: 'Retrieve only alerts that are currently active and monitoring.'
   })
   @ApiResponse({ status: 200, description: 'Active alerts retrieved' })
-  async getActiveAlerts(@Request() req: any) {
+  async getActiveAlerts(@Request() req: any): Promise<GeneralResponse<any>> {
     const userId = req.user.userId;
-    return this.alertsService.getActiveAlerts(userId);
+    const result = await this.alertsService.getActiveAlerts(userId);
+    return GeneralResponse.success(result);
   }
 
   @Get('stats')
@@ -54,9 +58,10 @@ export class AlertsController {
     description: 'Get counts of total, active, triggered, and cancelled alerts.'
   })
   @ApiResponse({ status: 200, description: 'Statistics retrieved' })
-  async getAlertStats(@Request() req: any) {
+  async getAlertStats(@Request() req: any): Promise<GeneralResponse<any>> {
     const userId = req.user.userId;
-    return this.alertsService.getAlertStats(userId);
+    const result = await this.alertsService.getAlertStats(userId);
+    return GeneralResponse.success(result);
   }
 
   @Get('price/:symbol')
@@ -65,9 +70,9 @@ export class AlertsController {
     description: 'Fetch the latest price from the price cache or Binance API.'
   })
   @ApiResponse({ status: 200, description: 'Price retrieved' })
-  async getCurrentPrice(@Param('symbol') symbol: string) {
+  async getCurrentPrice(@Param('symbol') symbol: string): Promise<GeneralResponse<any>> {
     const price = await this.alertsService.getCurrentPrice(symbol);
-    return { symbol, price, timestamp: new Date() };
+    return GeneralResponse.success({ symbol, price, timestamp: new Date() });
   }
 
   @Post(':id/cancel')
@@ -80,15 +85,10 @@ export class AlertsController {
   async cancelAlert(
     @Param('id') alertId: string,
     @Request() req: any,
-  ) {
+  ): Promise<GeneralResponse<any>> {
     const userId = req.user.userId;
-    const cancelled = await this.alertsService.cancelAlert(userId, alertId);
-    
-    if (!cancelled) {
-      return { success: false, message: 'Alert not found or already cancelled' };
-    }
-    
-    return { success: true, message: 'Alert cancelled successfully' };
+    await this.alertsService.cancelAlert(userId, alertId);
+    return GeneralResponse.success({ message: 'Alert cancelled successfully' });
   }
 
   @Delete(':id')
@@ -101,14 +101,9 @@ export class AlertsController {
   async deleteAlert(
     @Param('id') alertId: string,
     @Request() req: any,
-  ) {
+  ): Promise<GeneralResponse<any>> {
     const userId = req.user.userId;
-    const deleted = await this.alertsService.deleteAlert(userId, alertId);
-    
-    if (!deleted) {
-      return { success: false, message: 'Alert not found' };
-    }
-    
-    return { success: true, message: 'Alert deleted successfully' };
+    await this.alertsService.deleteAlert(userId, alertId);
+    return GeneralResponse.success({ message: 'Alert deleted successfully' });
   }
 }

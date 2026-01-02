@@ -12,6 +12,7 @@ import {
 import { BacktestService } from './backtest.service';
 import { BacktestRequest, BacktestResponse } from './backtest.interface';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { GeneralResponse } from 'src/common/dto/general-response.dto';
 
 @Controller('backtest')
 @UseGuards(JwtAuthGuard)
@@ -23,23 +24,26 @@ export class BacktestController {
   async runBacktest(
     @Body() backtestRequest: BacktestRequest,
     @Req() req: any,
-  ): Promise<BacktestResponse> {
+  ): Promise<GeneralResponse<BacktestResponse>> {
     const userId = req.user?.userId || 'anonymous';
-    return this.backtestService.runBacktest(backtestRequest, userId);
+    const result = await this.backtestService.runBacktest(backtestRequest, userId);
+    return GeneralResponse.success(result, 'Backtest started successfully');
   }
 
   @Get('history')
-  async getHistory(@Req() req: any): Promise<any[]> {
+  async getHistory(@Req() req: any): Promise<GeneralResponse<any[]>> {
     const userId = req.user?.userId || 'anonymous';
-    return this.backtestService.getBacktestHistory(userId);
+    const history = await this.backtestService.getBacktestHistory(userId);
+    return GeneralResponse.success(history);
   }
 
   @Get(':id')
   async getBacktestResult(
     @Param('id') id: string,
     @Req() req: any,
-  ): Promise<any> {
+  ): Promise<GeneralResponse<any>> {
     const userId = req.user?.userId || 'anonymous';
-    return this.backtestService.getBacktestResult(id, userId);
+    const result = await this.backtestService.getBacktestResult(id, userId);
+    return GeneralResponse.success(result);
   }
 }

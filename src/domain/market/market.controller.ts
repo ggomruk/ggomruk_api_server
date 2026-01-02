@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { MarketService } from './market.service';
+import { GeneralResponse } from 'src/common/dto/general-response.dto';
 
 @Controller('market')
 export class MarketController {
@@ -11,17 +12,19 @@ export class MarketController {
     @Query('interval') interval: string = '1m',
     @Query('limit') limit: number = 1000,
     @Query('endTime') endTime?: number, // Optional: fetch data before this timestamp
-  ) {
-    return this.marketService.getKlines(
+  ): Promise<GeneralResponse<any>> {
+    const result = await this.marketService.getKlines(
       symbol,
       interval,
       Number(limit),
       endTime ? Number(endTime) : undefined,
     );
+    return GeneralResponse.success(result);
   }
 
   @Get('ticker')
-  async getTicker(@Query('symbol') symbol: string) {
-    return this.marketService.getTicker(symbol);
+  async getTicker(@Query('symbol') symbol: string): Promise<GeneralResponse<any>> {
+    const result = await this.marketService.getTicker(symbol);
+    return GeneralResponse.success(result);
   }
 }
