@@ -1,14 +1,13 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { BacktestDTO } from './dto/backtest.dto';
+import { BacktestDTO } from './common/dto/backtest.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { E_Task } from './enum/task';
 import { BacktestService } from 'src/common/database/service/backtest.service';
 import { OptimizationTaskService } from 'src/common/database/service/optimizationTask.service';
 import { OptimizationResultService } from 'src/common/database/service/optimizationResult.service';
 import { IBacktestParams } from 'src/common/database/schema/backtestParams.schema';
 import { AlgoException, AlgoExceptionCode } from './algo.exception';
-import { SignalDTO } from './dto/signal.dto';
-import { OptimizeDTO } from './dto/optimize.dto';
+import { SignalDTO } from './common/dto/signal.dto';
+import { OptimizeDTO } from './common/dto/optimize.dto';
 import RedisMessageQueueClient from 'src/domain/redis/messageQueue/redis.mq.client';
 import { BacktestPubSubService } from 'src/domain/redis/messageQueue/backtest-pubsub.service';
 import { WebsocketGateway } from 'src/domain/websocket/websocketGateway';

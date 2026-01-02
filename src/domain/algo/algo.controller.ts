@@ -11,10 +11,10 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { AlgoException, AlgoExceptionCode } from './algo.exception';
 import { AlgoExceptionFilter } from './algo.exceptionFilter';
-import { BacktestDTO } from './dto/backtest.dto';
+import { BacktestDTO } from './common/dto/backtest.dto';
 import { AlgoService } from './algo.service';
-import { SignalDTO } from './dto/signal.dto';
-import { OptimizeDTO } from './dto/optimize.dto';
+import { SignalDTO } from './common/dto/signal.dto';
+import { OptimizeDTO } from './common/dto/optimize.dto';
 import { JwtAuthGuard } from 'src/domain/auth/guards/jwt-auth.guard';
 
 @ApiTags('algo')

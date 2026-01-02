@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { BacktestSchemaRepository } from "../repository/backtest.repository";
 import { BacktestDocument } from "../schema";
-import { BacktestDTO } from "src/domain/algo/dto/backtest.dto";
+import { BacktestDTO } from "src/domain/algo/common/dto/backtest.dto";
 import { IBacktestParams } from "../schema/backtestParams.schema";
 import { AlgoException, AlgoExceptionCode } from "src/domain/algo/algo.exception";
 

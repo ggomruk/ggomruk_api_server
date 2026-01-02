@@ -10,7 +10,7 @@ import * as dotenv from 'dotenv';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 import { WebsocketModule } from './domain/websocket/websocket.module';
 import { RedisModule } from './domain/redis/redis.module';
-import { OptimizerModule } from './domain/optimizer/optimizer.module';
+import { OptimizerModule } from './domain/algo/optimizer/optimizer.module';
 import { AlertsModule } from './domain/alerts/alerts.module';
 import { MarketModule } from './domain/market/market.module';
 import configuration from './config'
