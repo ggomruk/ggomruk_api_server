@@ -216,6 +216,17 @@ export class BacktestService {
     const backtest = await this.getBacktestById(backtestId);
     if (!backtest) return null;
     // In a real app, check if backtest belongs to userId
-    return backtest.result;
+    
+    // If result is missing, return the whole document so we can debug
+    if (!backtest.result) {
+        this.logger.warn(`Backtest ${backtestId} found but has no result field`);
+        return {
+            status: 'pending',
+            message: 'Backtest is still processing or failed',
+            backtest
+        };
+    }
+    
+    return backtest;
   }
 }

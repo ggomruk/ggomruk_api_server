@@ -25,8 +25,8 @@ export class BacktestDocument extends Document implements IBacktest {
   @Prop({ required: true, type: BacktestParamsSchema })
   backtestParams: BacktestParamsDocument;
 
-  @Prop({ required: false, type: ResultSchema })
-  result: ResultDocument;
+  @Prop({ required: false, type: mongoose.Schema.Types.Mixed })
+  result: any;
 }
 
 export const BacktestSchema = SchemaFactory.createForClass(BacktestDocument);

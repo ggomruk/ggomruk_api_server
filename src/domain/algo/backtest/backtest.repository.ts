@@ -48,8 +48,15 @@ export class BacktestSchemaRepository {
   }
 
   async findById(backtestId: string): Promise<BacktestDocument> {
-    const result = await this.backtestModel.findById(backtestId);
-    return result;
+    // Check if backtestId is a valid ObjectId
+    if (backtestId.match(/^[0-9a-fA-F]{24}$/)) {
+      const result = await this.backtestModel.findById(backtestId);
+      return result;
+    } else {
+      // If not a valid ObjectId, try finding by uid (UUID)
+      const result = await this.backtestModel.findOne({ uid: backtestId });
+      return result;
+    }
   }
 
   async deleteById(backtestId: string): Promise<boolean> {
