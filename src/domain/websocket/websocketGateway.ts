@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, Inject, forwardRef } from '@nestjs/common';
 import {
   MessageBody,
   SubscribeMessage,
@@ -11,6 +11,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { BacktestPubSubService } from 'src/domain/redis/messageQueue/backtest-pubsub.service';
+import { BacktestService } from 'src/domain/algo/backtest/backtest.service';
 
 // Gateway for Websocket to connect between client
 @WebSocketGateway(5678, {
@@ -33,7 +34,11 @@ export class WebsocketGateway
   // Map to track user subscriptions: userId -> Set of socket IDs
   private userSockets: Map<string, Set<string>> = new Map();
 
-  constructor(private backtestPubSub: BacktestPubSubService) {
+  constructor(
+    private backtestPubSub: BacktestPubSubService,
+    @Inject(forwardRef(() => BacktestService))
+    private backtestService: BacktestService,
+  ) {
     // Subscribe to Redis events and broadcast to connected clients
     this.setupRedisSubscriptions();
   }
@@ -147,10 +152,30 @@ export class WebsocketGateway
     });
 
     // Listen for completion events
-    this.backtestPubSub.onComplete((data) => {
+    this.backtestPubSub.onComplete(async (data) => {
       this.logger.log(
         `Broadcasting completion for backtest ${data.backtestId}`,
       );
+      
+      // Update MongoDB with the result
+      try {
+        await this.backtestService.checkAndUpdateResultIfUidExists(
+          data.backtestId,
+          {
+            status: data.status,
+            resultId: data.resultId,
+            summary: data.summary,
+            error: data.error,
+            completedAt: new Date().toISOString(),
+          },
+        );
+        this.logger.log(`Updated backtest ${data.backtestId} in MongoDB`);
+      } catch (error) {
+        this.logger.error(
+          `Failed to update backtest ${data.backtestId}: ${error.message}`,
+        );
+      }
+      
       this.broadcastToUser(data.userId, 'backtest:complete', data);
     });
 

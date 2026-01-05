@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { WebsocketGateway } from './websocketGateway';
 import { RedisModule } from 'src/domain/redis/redis.module';
+import { BacktestModule } from '../algo/backtest/backtest.module';
 
 /**
  * 🔌 WebsocketModule - Real-time communication via Socket.IO
@@ -19,9 +20,10 @@ import { RedisModule } from 'src/domain/redis/redis.module';
  *
  * @dependencies
  * - RedisModule: Required for BacktestPubSubService (Redis Pub/Sub)
+ * - BacktestModule: Required for updating backtest results in MongoDB
  */
 @Module({
-  imports: [RedisModule],
+  imports: [RedisModule, forwardRef(() => BacktestModule)],
   providers: [WebsocketGateway],
   exports: [WebsocketGateway],
 })

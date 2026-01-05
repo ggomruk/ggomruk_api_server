@@ -2,21 +2,21 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 
 export interface I_RSI {
-  periods: number;
-  rsi_upper: number;
-  rsi_lower: number;
+  rsi_period: number;
+  oversold: number;
+  overbought: number;
 }
 
 @Schema({ timestamps: false, _id: false })
 export class RSIDocument extends Document implements I_RSI {
   @Prop({ required: true, type: Number })
-  periods: number;
+  rsi_period: number;
 
   @Prop({ required: true, type: Number })
-  rsi_upper: number;
+  oversold: number;
 
   @Prop({ required: true, type: Number })
-  rsi_lower: number;
+  overbought: number;
 }
 
 export const RSISchema = SchemaFactory.createForClass(RSIDocument);

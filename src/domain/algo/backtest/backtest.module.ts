@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BacktestController } from './backtest.controller';
 import { BacktestService } from './backtest.service';
@@ -12,7 +12,7 @@ import { BacktestSchemaRepository } from './backtest.repository';
   imports: [
     ConfigModule,
     RedisMessageQueueModule,
-    WebsocketModule,
+    forwardRef(() => WebsocketModule),
     MongooseModule.forFeature([{ name: 'Backtest', schema: BacktestSchema }]),
   ],
   controllers: [BacktestController],

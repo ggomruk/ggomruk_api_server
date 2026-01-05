@@ -2,17 +2,17 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 
 export interface I_BB {
-  sma: number;
-  dev: number;
+  period: number;
+  std: number;
 }
 
 @Schema({ timestamps: false, _id: false })
 export class BBDocument extends Document implements I_BB {
   @Prop({ required: true, type: Number })
-  sma: number;
+  period: number;
 
   @Prop({ required: true, type: Number })
-  dev: number;
+  std: number;
 }
 
 export const BBSchema = SchemaFactory.createForClass(BBDocument);
