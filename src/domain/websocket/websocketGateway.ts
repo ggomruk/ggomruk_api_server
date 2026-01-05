@@ -38,13 +38,12 @@ export class WebsocketGateway
     private backtestPubSub: BacktestPubSubService,
     @Inject(forwardRef(() => BacktestService))
     private backtestService: BacktestService,
-  ) {
-    // Subscribe to Redis events and broadcast to connected clients
-    this.setupRedisSubscriptions();
-  }
+  ) {}
 
   afterInit(server: Server) {
     this.logger.log('Websocket Gateway Initialized on port 5678');
+    // Subscribe to Redis events and broadcast to connected clients
+    this.setupRedisSubscriptions();
   }
 
   handleConnection(client: Socket, ...args: any[]) {
