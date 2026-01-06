@@ -130,6 +130,7 @@ export class BacktestService {
       commission: data.tc,
       usdt: data.usdt,
       leverage: data.leverage,
+      strategyName: data.strategyName,
       strategies: data.strategyParams.strategies as any,
     };
 
@@ -189,21 +190,28 @@ export class BacktestService {
   async getBacktestHistory(userId: string) {
     const history = await this.getUserBacktests(userId);
     return history.map((h) => {
-      const strategies = h.backtestParams.strategies;
-      // strategies is a Mongoose document, so we might need to convert to object or check keys carefully
-      const strategyNames = Object.keys(strategies).filter(
-        (k) =>
-          ['bb', 'macd', 'rsi', 'rv', 'sma', 'so'].includes(k) &&
-          (strategies as any)[k] != null,
-      );
-      const strategyName =
-        strategyNames.length > 0
-          ? strategyNames.join('+').toUpperCase()
-          : 'Unknown';
+      // Use custom strategyName if provided, otherwise generate from strategies
+      let strategyName: string;
+      
+      if (h.backtestParams.strategyName) {
+        strategyName = h.backtestParams.strategyName;
+      } else {
+        const strategies = h.backtestParams.strategies;
+        // strategies is a Mongoose document, so we might need to convert to object or check keys carefully
+        const strategyNames = Object.keys(strategies).filter(
+          (k) =>
+            ['bb', 'macd', 'rsi', 'rv', 'sma', 'so'].includes(k) &&
+            (strategies as any)[k] != null,
+        );
+        strategyName =
+          strategyNames.length > 0
+            ? strategyNames.join('+').toUpperCase()
+            : 'Unknown';
+      }
 
       return {
         id: h.uid,
-        name: `${strategyName} Strategy`,
+        name: strategyName,
         strategy: strategyName,
         symbol: h.backtestParams.symbol,
         date: (h as any).createdAt,

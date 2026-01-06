@@ -14,6 +14,7 @@ export interface IBacktestParams {
   usdt: number;
   leverage: number;
   interval: string;
+  strategyName?: string;
   strategies: IStrategies;
 }
 
@@ -42,6 +43,9 @@ export class BacktestParamsDocument
 
   @Prop({ required: true, type: String })
   interval: string;
+
+  @Prop({ required: false, type: String })
+  strategyName?: string;
 
   @Prop({ required: true, type: StrategiesSchema })
   strategies: StrategiesDocument;

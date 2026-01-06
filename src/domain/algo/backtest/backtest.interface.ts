@@ -6,6 +6,7 @@ export interface BacktestRequest {
   usdt: number;
   tc: number;
   leverage: number;
+  strategyName?: string;
   strategyParams: {
     strategies: {
       [key: string]: any;
