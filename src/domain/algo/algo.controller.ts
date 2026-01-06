@@ -70,22 +70,27 @@ export class AlgoController {
     const history = await this.algoService.getBacktestHistory(userId);
 
     const mappedHistory = history.map((h) => {
-      const strategies = h.backtestParams.strategies;
-      // strategies is a Mongoose document, so we might need to convert to object or check keys carefully
-      // But assuming it behaves like an object:
-      const strategyNames = Object.keys(strategies).filter(
-        (k) =>
-          ['bb', 'macd', 'rsi', 'rv', 'sma', 'so'].includes(k) &&
-          (strategies as any)[k] != null,
-      );
-      const strategyName =
-        strategyNames.length > 0
-          ? strategyNames.join('+').toUpperCase()
-          : 'Unknown';
+      let strategyName = h.backtestParams.strategyName;
+
+      if (!strategyName) {
+        const strategies = h.backtestParams.strategies || {};
+        // strategies is a Mongoose document, so we might need to convert to object or check keys carefully
+        // But assuming it behaves like an object:
+        const strategyNames = Object.keys(strategies).filter(
+          (k) =>
+            ['bb', 'macd', 'rsi', 'rv', 'sma', 'so'].includes(k) &&
+            (strategies as any)[k] != null,
+        );
+        const derivedName =
+          strategyNames.length > 0
+            ? strategyNames.join('+').toUpperCase()
+            : 'Unknown';
+        strategyName = `${derivedName} Strategy`;
+      }
 
       return {
         id: h.uid,
-        name: `${strategyName} Strategy`,
+        name: strategyName,
         strategy: strategyName,
         symbol: h.backtestParams.symbol,
         date: (h as any).createdAt,
