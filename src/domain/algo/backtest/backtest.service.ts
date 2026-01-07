@@ -192,7 +192,7 @@ export class BacktestService {
     return history.map((h) => {
       // Use custom strategyName if provided, otherwise generate from strategies
       let strategyName: string;
-      
+
       if (h.backtestParams.strategyName) {
         strategyName = h.backtestParams.strategyName;
       } else {

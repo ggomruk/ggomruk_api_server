@@ -155,7 +155,7 @@ export class WebsocketGateway
       this.logger.log(
         `Broadcasting completion for backtest ${data.backtestId}`,
       );
-      
+
       // Update MongoDB with the result
       try {
         await this.backtestService.checkAndUpdateResultIfUidExists(
@@ -174,7 +174,7 @@ export class WebsocketGateway
           `Failed to update backtest ${data.backtestId}: ${error.message}`,
         );
       }
-      
+
       this.broadcastToUser(data.userId, 'backtest:complete', data);
     });
 
