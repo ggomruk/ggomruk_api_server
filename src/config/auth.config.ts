@@ -8,9 +8,9 @@ interface IAuthConfig {
   jwtRefreshExpiresIn: string;
 
   // Google OAuth
-  // googleClientID: string;
-  // googleClientSecret: string;
-  // googleCallbackURL: string;
+  googleClientId: string;
+  googleClientSecret: string;
+  googleCallbackUrl: string;
 }
 
 export default registerAs<IAuthConfig>('auth', () => ({
@@ -21,9 +21,9 @@ export default registerAs<IAuthConfig>('auth', () => ({
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN,
 
   // Google OAuth
-  // googleClientID: process.env.GOOGLE_CLIENT_ID,
-  // googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  // googleCallbackURL: process.env.GOOGLE_CALLBACK_URL,
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL,
 }));
 
 export { IAuthConfig };
