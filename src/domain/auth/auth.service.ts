@@ -26,7 +26,7 @@ export class AuthService {
       password,
     );
     if (isPasswordValid) {
-      const { password, ...result } = user.toObject();
+      const result = user.toObject();
       return result;
     }
 
@@ -70,7 +70,7 @@ export class AuthService {
   async signup(userDto: UserDTO) {
     try {
       const user = await this.userService.createUser(userDto);
-      const { password, ...result } = user.toObject();
+      const result = user.toObject();
 
       this.logger.log(`New user registered: ${user.username}`);
 
@@ -87,7 +87,7 @@ export class AuthService {
     }
 
     const user = await this.userService.createOrUpdateGoogleUser(req.user);
-    const { password, ...result } = user.toObject();
+    const result = user.toObject();
 
     this.logger.log(`Google OAuth login: ${user.email}`);
 

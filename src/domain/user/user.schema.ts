@@ -4,8 +4,6 @@ import { Document } from 'mongoose';
 export interface IUser {
   username: string;
   email: string;
-  password: string;
-  googleId?: string;
   displayName?: string;
   picture?: string;
   createdAt?: Date;
@@ -19,12 +17,6 @@ export class User extends Document implements IUser {
 
   @Prop({ required: true, unique: true, type: String })
   email: string;
-
-  @Prop({ required: true, type: String })
-  password: string;
-
-  @Prop({ type: String })
-  googleId?: string;
 
   @Prop({ type: String })
   displayName?: string;

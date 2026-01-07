@@ -7,6 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './user.schema';
+import { UserAuth } from './user-auth.schema';
 import { UserDTO } from './dto/user.dto';
 import * as bcrypt from 'bcryptjs';
 
@@ -14,7 +15,10 @@ import * as bcrypt from 'bcryptjs';
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(UserAuth.name) private userAuthModel: Model<UserAuth>,
+  ) {}
 
   async findUser(username: string): Promise<User | null> {
     try {
@@ -56,18 +60,35 @@ export class UserService {
         throw new ConflictException('Email already exists');
       }
 
-      // Hash password
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(userDto.password, saltRounds);
-
-      // Create new user
+      // Create core user profile
       const newUser = new this.userModel({
         username: userDto.username,
         email: userDto.email,
-        password: hashedPassword,
+        displayName: userDto.username,
       });
 
-      return await newUser.save();
+      const savedUser = await newUser.save();
+
+      try {
+        // Hash password
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(userDto.password, saltRounds);
+
+        // Create auth entry
+        const newAuth = new this.userAuthModel({
+          user: savedUser._id,
+          provider: 'local',
+          password: hashedPassword,
+        });
+
+        await newAuth.save();
+      } catch (authError) {
+        // Rollback user creation if auth fails
+        await this.userModel.findByIdAndDelete(savedUser._id);
+        throw authError;
+      }
+
+      return savedUser;
     } catch (error) {
       this.logger.error(`Error creating user: ${error.message}`);
       throw error;
@@ -84,25 +105,42 @@ export class UserService {
         const newUser = new this.userModel({
           username: email.split('@')[0] + '_' + Date.now(),
           email: email,
-          password: '', // No password for OAuth users
-          googleId: profile.id,
           displayName: profile.displayName,
           picture: profile.photos?.[0]?.value,
         });
         user = await newUser.save();
       } else {
-        // Update existing user's Google info if needed
-        if (!user.googleId) {
-          await this.userModel.findByIdAndUpdate(
-            user._id,
-            {
-              googleId: profile.id,
-              displayName: profile.displayName,
-              picture: profile.photos?.[0]?.value,
-            },
-            { new: true },
-          );
+        // Update existing user profile if needed
+        let updated = false;
+        if (!user.displayName && profile.displayName) {
+          user.displayName = profile.displayName;
+          updated = true;
         }
+        if (!user.picture && profile.photos?.[0]?.value) {
+          user.picture = profile.photos?.[0]?.value;
+          updated = true;
+        }
+        if (updated) {
+          await user.save();
+        }
+      }
+
+      // Manage Auth
+      const existingAuth = await this.userAuthModel
+        .findOne({
+          user: user._id,
+          provider: 'google',
+          providerUserId: profile.id,
+        })
+        .exec();
+
+      if (!existingAuth) {
+        const newAuth = new this.userAuthModel({
+          user: user._id,
+          provider: 'google',
+          providerUserId: profile.id,
+        });
+        await newAuth.save();
       }
 
       return user;
@@ -116,7 +154,18 @@ export class UserService {
 
   async validatePassword(user: User, password: string): Promise<boolean> {
     try {
-      return await bcrypt.compare(password, user.password);
+      const auth = await this.userAuthModel
+        .findOne({
+          user: user._id,
+          provider: 'local',
+        })
+        .exec();
+
+      if (!auth || !auth.password) {
+        return false;
+      }
+
+      return await bcrypt.compare(password, auth.password);
     } catch (error) {
       this.logger.error(`Error validating password: ${error.message}`);
       return false;
