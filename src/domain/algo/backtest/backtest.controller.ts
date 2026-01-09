@@ -13,9 +13,12 @@ import { BacktestService } from './backtest.service';
 import { BacktestRequest, BacktestResponse } from './backtest.interface';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { GeneralResponse } from 'src/common/dto/general-response.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Backtest')
 @Controller('backtest')
 @UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class BacktestController {
   constructor(private readonly backtestService: BacktestService) {}
 

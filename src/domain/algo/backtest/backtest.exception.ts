@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
-export enum AlgoExceptionCode {
+export enum BacktestExceptionCode {
   // provided parameter is invlaid (ex: range -> 30~60, got 0)
   INVALID_INTPUT_PARAMETER = 2001,
   // User provide an invalid UID to get the result
@@ -15,9 +15,9 @@ export enum AlgoExceptionCode {
 }
 
 @Injectable()
-export class AlgoException extends HttpException {
+export class BacktestException extends HttpException {
   constructor(
-    code: AlgoExceptionCode,
+    code: BacktestExceptionCode,
     message: string,
     status: HttpStatus = HttpStatus.BAD_REQUEST,
   ) {

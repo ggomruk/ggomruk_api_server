@@ -1,11 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { BacktestSchemaRepository } from './backtest.repository';
 import { BacktestDocument } from './schemas/backtest.schema';
 import { IBacktestParams } from './schemas/backtestParams.schema';
-import {
-  AlgoException,
-  AlgoExceptionCode,
-} from 'src/domain/algo/algo.exception';
+import { BacktestException, BacktestExceptionCode } from './backtest.exception';
 import { v4 as uuidv4 } from 'uuid';
 import RedisMessageQueueClient from '../../redis/messageQueue/redis.mq.client';
 import { BacktestPubSubService } from '../../redis/messageQueue/backtest-pubsub.service';
@@ -20,6 +17,7 @@ export class BacktestService {
     private readonly backtestRepository: BacktestSchemaRepository,
     private readonly redisService: RedisMessageQueueClient,
     private readonly backtestPubSub: BacktestPubSubService,
+    @Inject(forwardRef(() => WebsocketGateway))
     private readonly websocketGateway: WebsocketGateway,
   ) {}
 
@@ -52,8 +50,8 @@ export class BacktestService {
     let document = await this.backtestRepository.findByUid(uid);
     if (!document) {
       // Record not found
-      throw new AlgoException(
-        AlgoExceptionCode.BACKTEST_NOT_FOUND,
+      throw new BacktestException(
+        BacktestExceptionCode.BACKTEST_NOT_FOUND,
         `Backtest with uid ${uid} not found`,
       );
     } else if (!document.result) {
@@ -63,8 +61,8 @@ export class BacktestService {
       return updatedDocument;
     } else {
       // Record found and result already exists
-      throw new AlgoException(
-        AlgoExceptionCode.BACKTEST_RESULT_ALREADY_EXISTS,
+      throw new BacktestException(
+        BacktestExceptionCode.BACKTEST_RESULT_ALREADY_EXISTS,
         `Backtest with uid ${uid} already has a result`,
       );
     }
@@ -144,8 +142,8 @@ export class BacktestService {
       this.logger.log(`Saved backtest ${backtestId} to database`);
     } catch (error) {
       this.logger.error(`Failed to save backtest data: ${backtestId}`);
-      throw new AlgoException(
-        AlgoExceptionCode.DUPLICATE_UID,
+      throw new BacktestException(
+        BacktestExceptionCode.DUPLICATE_UID,
         'Duplicate backtest exists',
       );
     }

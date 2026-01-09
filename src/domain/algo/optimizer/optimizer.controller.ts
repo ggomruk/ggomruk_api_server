@@ -63,6 +63,21 @@ export class OptimizerController {
     return GeneralResponse.success(result);
   }
 
+  @Get('optimizations')
+  @ApiOperation({
+    summary: 'Get user optimizations',
+    description: 'Retrieve all optimization tasks for the authenticated user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Optimizations retrieved successfully',
+  })
+  async getOptimizations(@Request() req): Promise<GeneralResponse<any>> {
+    const userId = req.user.userId;
+    const result = await this.optimizerService.getUserOptimizations(userId);
+    return GeneralResponse.success(result);
+  }
+
   @Post('compare')
   @ApiOperation({
     summary: 'Compare multiple strategies',

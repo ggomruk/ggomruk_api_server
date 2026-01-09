@@ -1,5 +1,4 @@
 import { Logger, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AlgoModule } from './domain/algo/algo.module';
 import { AuthModule } from './domain/auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import envValidation from './config/config.validation';
@@ -9,6 +8,7 @@ import * as dotenv from 'dotenv';
 import { WebsocketModule } from './domain/websocket/websocket.module';
 import { RedisModule } from './domain/redis/redis.module';
 import { OptimizerModule } from './domain/algo/optimizer/optimizer.module';
+import { BacktestModule } from './domain/algo/backtest/backtest.module';
 import { AlertsModule } from './domain/alerts/alerts.module';
 import { MarketModule } from './domain/market/market.module';
 import configuration from './config';
@@ -62,7 +62,7 @@ const logger = new Logger('App Module');
     RedisModule,
     WebsocketModule,
     AuthModule,
-    AlgoModule,
+    BacktestModule,
     OptimizerModule,
     AlertsModule,
     MarketModule,
