@@ -63,7 +63,7 @@ async function bootstrap() {
 
   // Swagger API Documentation
   const config = new DocumentBuilder()
-    .setTitle('Ggomruk API')
+    .setTitle('stratyx API')
     .setDescription('Algorithmic Trading and Backtesting API')
     .setVersion('1.0')
     .addTag('auth', 'Authentication endpoints')

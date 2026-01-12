@@ -4,31 +4,31 @@ services:
   # MongoDB Database
   mongodb:
     image: mongo:7.0
-    container_name: ggomruk_mongodb
+    container_name: stratyx_mongodb
     restart: unless-stopped
     ports:
       - "${DB_PORT:-27018}:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME:-admin}
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD:-DhDh123}
-      MONGO_INITDB_DATABASE: ${DB_NAME:-ggomruk}
+      MONGO_INITDB_DATABASE: ${DB_NAME:-stratyx}
     volumes:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
     networks:
-      - ggomruk_network
+      - stratyx_network
 
   # Redis Cache
   redis:
     image: redis:7-alpine
-    container_name: ggomruk_redis
+    container_name: stratyx_redis
     restart: unless-stopped
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     networks:
-      - ggomruk_network
+      - stratyx_network
     command: >
       sh -c '
       if [ -n "${REDIS_PASSWORD}" ]; then
@@ -46,5 +46,5 @@ volumes:
     driver: local
 
 networks:
-  ggomruk_network:
+  stratyx_network:
     driver: bridge
