@@ -237,6 +237,32 @@ export class BacktestService {
       };
     }
 
+    // Attempt to fetch detailed result from backtestResults collection
+    if (backtest.result && backtest.result.resultId) {
+      try {
+        const detailedResult = await this.getBacktestDetailedResult(backtest.result.resultId);
+        if (detailedResult) {
+          // Check if it's a raw Mongoose doc or object
+          const backtestObj = backtest.toObject ? backtest.toObject() : backtest;
+          
+          // Merge logic:
+          // Keep the 'summary' and 'status' from the main doc's result
+          // Merge in the heavy 'result' data from the detailed doc
+          // Note: detailedResult.result contains the performance/strategy data
+          return {
+            ...backtestObj,
+            result: {
+              ...backtestObj.result,
+              ...detailedResult.result, // Merge remote result fields (performance, etc)
+              // Ensure we don't prefer 'result' properties if they conflict with summary (tho they shouldn't)
+            }
+          };
+        }
+      } catch (err) {
+        this.logger.warn(`Could not fetch detailed result for ${backtestId}: ${err.message}`);
+      }
+    }
+
     return backtest;
   }
 }
