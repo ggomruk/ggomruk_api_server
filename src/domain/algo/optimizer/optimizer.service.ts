@@ -7,6 +7,7 @@ import { BacktestPubSubService } from 'src/domain/redis/messageQueue/backtest-pu
 import { v4 as uuidv4 } from 'uuid';
 import { OptimizationTaskService } from './service/optimizationTask.service';
 import { OptimizationResultService } from './service/optimizationResult.service';
+import { Types } from 'mongoose';
 
 export interface OptimizationResponse {
   optimizationId: string;
@@ -160,7 +161,6 @@ export class OptimizerService implements OnModuleInit {
     const backtests = await Promise.all(
       dto.backtestIds.map((id) => this.backtestService.getBacktestById(id)),
     );
-
     // Filter out null results
     const validBacktests = backtests.filter((bt) => bt !== null);
 
@@ -168,32 +168,72 @@ export class OptimizerService implements OnModuleInit {
       throw new Error('No valid backtests found');
     }
 
+    // Fetch full results from backtestResults collection using _id
+    const backtest_results = await Promise.all(
+      validBacktests.map(async (bt) => {
+        const resultId = bt.result?.resultId;
+        if (!resultId) {
+          this.logger.warn(
+            `Backtest ${bt._id} (uid: ${bt.uid}) has no resultId`,
+          );
+          return null;
+        }
+
+        try {
+          // Use backtestService to fetch detailed result (handles collection name and ID types)
+          const fullResultWrapper =
+            await this.backtestService.getBacktestDetailedResult(resultId);
+
+          if (!fullResultWrapper) {
+            this.logger.warn(
+              `No detailed result found for resultId ${resultId}`,
+            );
+            return null;
+          }
+
+          return { backtest: bt, fullResult: fullResultWrapper.result };
+        } catch (error) {
+          this.logger.error(
+            `Failed to fetch result for backtest ${bt._id}: ${error.message}`,
+          );
+          return null;
+        }
+      }),
+    );
+
+    const validResults = backtest_results.filter((r) => r !== null);
+
+    if (validResults.length === 0) {
+      throw new Error('No valid backtest results found');
+    }
+
     // Extract metrics for comparison
-    const comparison = validBacktests.map((bt) => {
-      const result = bt.result as any;
+    const comparison = validResults.map(({ backtest, fullResult }) => {
+      const result = fullResult as any;
+
       const leveragedPerf =
         result?.levered_performance || result?.leveragedPerformance || {};
       const performance = result?.performance || {};
 
+      // Calculate total_return from cstrategy (cumulative multiple)
+      // cstrategy = 1.25 -> 25% return
+      const totalReturn = leveragedPerf.cstrategy
+        ? (leveragedPerf.cstrategy - 1) * 100
+        : 0;
+
       return {
-        backtestId: bt._id,
+        backtestId: backtest._id,
         strategyName:
           result?.strategy_name || result?.strategyName || 'Unknown',
-        params: bt.backtestParams,
+        params: backtest.backtestParams,
         metrics: {
-          total_return:
-            leveragedPerf.total_return || leveragedPerf.totalReturn || 0,
-          sharpe_ratio:
-            leveragedPerf.sharpe_ratio || leveragedPerf.sharpeRatio || 0,
-          max_drawdown:
-            leveragedPerf.max_drawdown || leveragedPerf.maxDrawdown || 0,
-          win_rate: performance.win_rate || performance.winRate || 0,
-          profit_factor:
-            performance.profit_factor || performance.profitFactor || 0,
-          total_trades:
-            performance.total_trades || performance.totalTrades || 0,
-          avg_trade_return:
-            performance.avg_trade_return || performance.avgTradeReturn || 0,
+          total_return: totalReturn,
+          sharpe_ratio: leveragedPerf.sharpe || performance.sharpe || 0,
+          max_drawdown: Math.abs(performance.max_drawdown || 0) * 100, // Convert to percentage
+          win_rate: (performance.win_rate || 0) * 100, // Convert to percentage
+          profit_factor: performance.profit_factor || 0,
+          total_trades: performance.trades || 0,
+          avg_trade_return: 0, // Not available in Python output yet
         },
       };
     });

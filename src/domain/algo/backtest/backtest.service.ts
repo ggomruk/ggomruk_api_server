@@ -79,6 +79,10 @@ export class BacktestService {
     return await this.backtestRepository.findById(backtestId);
   }
 
+  async getBacktestDetailedResult(resultId: string): Promise<any> {
+    return await this.backtestRepository.findBacktestResult(resultId);
+  }
+
   async deleteBacktest(backtestId: string): Promise<boolean> {
     return await this.backtestRepository.deleteById(backtestId);
   }

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { BacktestDocument, IBacktest } from './schemas/backtest.schema';
 
 @Injectable()
@@ -100,6 +100,36 @@ export class BacktestSchemaRepository {
       this.logger.error(
         `Failed to fetch walk-forward result: ${error.message}`,
       );
+      return null;
+    }
+  }
+
+  /**
+   * Find detailed backtest result from backtestResults collection
+   * (Created by analytics server)
+   */
+  async findBacktestResult(resultId: string): Promise<any> {
+    try {
+      // Python analytics server writes to 'backtestResults'
+      const collection = this.backtestModel.db.collection('backtestResults');
+
+      // Try with ObjectId
+      if (Types.ObjectId.isValid(resultId)) {
+        const objectId = new Types.ObjectId(resultId);
+        const result = await collection.findOne({ _id: objectId });
+        if (result) return result;
+      }
+
+      // Fallback: Try with string ID (just in case)
+      const resultStr = await collection.findOne({ _id: resultId } as any);
+      if (resultStr) return resultStr;
+
+      this.logger.warn(
+        `Backtest result not found for ID: ${resultId} in backtestResults`,
+      );
+      return null;
+    } catch (error) {
+      this.logger.error(`Failed to fetch backtest result: ${error.message}`);
       return null;
     }
   }
