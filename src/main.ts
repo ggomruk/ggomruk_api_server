@@ -63,7 +63,7 @@ async function bootstrap() {
 
   // Swagger API Documentation
   const config = new DocumentBuilder()
-    .setTitle('stratyx API')
+    .setTitle('stratyix API')
     .setDescription('Algorithmic Trading and Backtesting API')
     .setVersion('1.0')
     .addTag('auth', 'Authentication endpoints')

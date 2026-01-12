@@ -2,7 +2,7 @@ import * as Joi from 'joi';
 
 export default () =>
   Joi.object({
-    APP_NAME: Joi.string().default('stratyx API Server'),
+    APP_NAME: Joi.string().default('stratyix API Server'),
     NODE_ENV: Joi.string().valid('dev', 'prod').default('dev'),
     PORT: Joi.number().default(4000),
     API_PREFIX: Joi.string().default('/api'),
