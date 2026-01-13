@@ -17,6 +17,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './domain/auth/guards/jwt-auth.guard';
 import { IDbConfig } from './config/db.config';
 import { IAppConfig } from './config/app.config';
+import { HealthController } from './common/health/health.controller';
 dotenv.config();
 
 const envValidationSchema = envValidation();
@@ -37,7 +38,7 @@ const logger = new Logger('App Module');
         const dbConfig = configService.get<IDbConfig>('db');
         // Always use authentication if credentials are provided
         const env = appConfig.env;
-        if (env === 'production') {
+        if (env === 'prod') {
           const uri = dbConfig.uri;
           logger.debug('MongoDB URI: ' + uri.replace(/:([^:@]+)@/, ':****@'));
           return { uri };
@@ -77,6 +78,7 @@ const logger = new Logger('App Module');
     AlertsModule,
     MarketModule,
   ],
+  controllers: [HealthController],
   providers: [
     {
       provide: APP_GUARD,
