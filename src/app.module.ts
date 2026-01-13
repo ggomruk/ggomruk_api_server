@@ -15,6 +15,8 @@ import configuration from './config';
 import { LoggerMiddleware } from './common/middleware';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './domain/auth/guards/jwt-auth.guard';
+import { IDbConfig } from './config/db.config';
+import { IAppConfig } from './config/app.config';
 dotenv.config();
 
 const envValidationSchema = envValidation();
@@ -31,14 +33,22 @@ const logger = new Logger('App Module');
     }),
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => {
-        const dbConfig = configService.get('db');
+        const appConfig = configService.get<IAppConfig>('app');
+        const dbConfig = configService.get<IDbConfig>('db');
         // Always use authentication if credentials are provided
-        const hasCredentials = dbConfig.username && dbConfig.password;
-        const uri = hasCredentials
-          ? `mongodb://${dbConfig.username}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}?authSource=admin`
-          : `mongodb://${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}`;
-        logger.debug('MongoDB URI: ' + uri.replace(/:([^:@]+)@/, ':****@')); // Hide password in logs
-        return { uri };
+        const env = appConfig.env;
+        if (env === 'production') {
+          const uri = dbConfig.uri;
+          logger.debug('MongoDB URI: ' + uri.replace(/:([^:@]+)@/, ':****@'));
+          return { uri };
+        } else {
+          const hasCredentials = dbConfig.username && dbConfig.password;
+          const uri = hasCredentials
+            ? `mongodb://${dbConfig.username}:${dbConfig.password}@${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}?authSource=admin`
+            : `mongodb://${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}`;
+          logger.debug('MongoDB URI: ' + uri.replace(/:([^:@]+)@/, ':****@')); // Hide password in logs
+          return { uri };
+        }
       },
       inject: [ConfigService],
     }),
