@@ -1,7 +1,6 @@
 import {
   IsString,
   IsArray,
-  IsObject,
   IsNumber,
   Min,
   Max,
@@ -13,34 +12,57 @@ import { ApiProperty } from '@nestjs/swagger';
 
 class ParameterRange {
   @ApiProperty({
-    description: 'Parameter name (e.g., rsiPeriod, macdFast)',
-    example: 'rsiPeriod',
+    description: 'Parameter name (e.g., ema_s, ema_l)',
+    example: 'ema_s',
   })
   @IsString()
   name: string;
 
   @ApiProperty({ description: 'Minimum value', example: 5 })
   @IsNumber()
-  @Min(1)
   min: number;
 
   @ApiProperty({ description: 'Maximum value', example: 30 })
   @IsNumber()
-  @Max(500)
   max: number;
 
-  @ApiProperty({ description: 'Step size', example: 5 })
+  @ApiProperty({ description: 'Step size', example: 1 })
   @IsNumber()
-  @Min(1)
+  @Min(0.001)
   step: number;
 }
 
+class StrategyConfig {
+  @ApiProperty({
+    description: 'Unique identifier for this strategy config',
+    example: 'abc123',
+  })
+  @IsString()
+  id: string;
+
+  @ApiProperty({
+    description: 'Strategy type (e.g., macd, bollinger, rsi)',
+    example: 'macd',
+  })
+  @IsString()
+  type: string;
+
+  @ApiProperty({
+    description: 'Parameter ranges for this strategy',
+    type: [ParameterRange],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ParameterRange)
+  parameters: ParameterRange[];
+}
+
 export class OptimizeStrategyDTO {
-  @ApiProperty({ description: 'Trading symbol', example: 'BTCUSDT' })
+  @ApiProperty({ description: 'Trading symbol', example: 'BTC/USDT' })
   @IsString()
   symbol: string;
 
-  @ApiProperty({ description: 'Timeframe interval', example: '1h' })
+  @ApiProperty({ description: 'Timeframe interval', example: '1d' })
   @IsString()
   interval: string;
 
@@ -53,34 +75,32 @@ export class OptimizeStrategyDTO {
   endDate: string;
 
   @ApiProperty({
-    description: 'Strategy names to optimize',
-    example: ['RSI', 'MACD'],
-  })
-  @IsArray()
-  @IsString({ each: true })
-  strategies: string[];
-
-  @ApiProperty({
-    description: 'Parameter ranges to optimize',
-    type: [ParameterRange],
+    description: 'Strategies with their parameter ranges',
+    type: [StrategyConfig],
     example: [
-      { name: 'rsiPeriod', min: 5, max: 30, step: 5 },
-      { name: 'rsiBuy', min: 20, max: 40, step: 5 },
-      { name: 'rsiSell', min: 60, max: 80, step: 5 },
+      {
+        id: 'init',
+        type: 'macd',
+        parameters: [
+          { name: 'ema_s', min: 1, max: 50, step: 1 },
+          { name: 'ema_l', min: 10, max: 100, step: 5 },
+        ],
+      },
     ],
   })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => ParameterRange)
-  paramRanges: ParameterRange[];
+  @Type(() => StrategyConfig)
+  strategies: StrategyConfig[];
 
   @ApiProperty({
     description: 'Optimization metric',
     example: 'sharpe',
     enum: ['sharpe', 'return', 'profit_factor', 'win_rate'],
   })
+  @IsOptional()
   @IsString()
-  metric: 'sharpe' | 'return' | 'profit_factor' | 'win_rate';
+  metric?: 'sharpe' | 'return' | 'profit_factor' | 'win_rate';
 
   @ApiProperty({ description: 'Leverage', example: 1, required: false })
   @IsOptional()

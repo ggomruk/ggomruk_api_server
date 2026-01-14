@@ -64,19 +64,17 @@ export class OptimizerService implements OnModuleInit {
       interval: dto.interval,
       startDate: dto.startDate,
       endDate: dto.endDate,
-      strategies: [
-        {
-          id: dto.strategies[0],
-          type: dto.strategies[0],
-          parameters: dto.paramRanges.map((p) => ({
-            name: p.name,
-            min: Number(p.min),
-            max: Number(p.max),
-            step: Number(p.step),
-          })),
-        },
-      ],
-      metric: dto.metric || 'sharpe_ratio',
+      strategies: dto.strategies.map((s) => ({
+        id: s.id,
+        type: s.type,
+        parameters: s.parameters.map((p) => ({
+          name: p.name,
+          min: Number(p.min),
+          max: Number(p.max),
+          step: Number(p.step),
+        })),
+      })),
+      metric: dto.metric || 'sharpe',
       leverage: dto.leverage || 1,
       tc: dto.commission || 0.001,
       usdt: dto.usdt || 10000,

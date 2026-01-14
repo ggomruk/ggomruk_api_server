@@ -36,9 +36,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
         typeof exceptionResponse === 'object' &&
         'message' in exceptionResponse
       ) {
-        message = Array.isArray(exceptionResponse.message)
-          ? exceptionResponse.message[0]
-          : exceptionResponse.message;
+        const exceptionMessage = exceptionResponse.message;
+        if (Array.isArray(exceptionMessage)) {
+          this.logger.debug(`Validation errors: ${JSON.stringify(exceptionMessage)}`);
+          message = exceptionMessage.join(', ');
+        } else if (typeof exceptionMessage === 'string') {
+          message = exceptionMessage;
+        }
       } else if (typeof exceptionResponse === 'string') {
         message = exceptionResponse;
       }
