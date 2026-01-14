@@ -14,11 +14,17 @@ import { BacktestPubSubService } from 'src/domain/redis/messageQueue/backtest-pu
 import { BacktestService } from 'src/domain/algo/backtest/backtest.service';
 
 // Gateway for Websocket to connect between client
-@WebSocketGateway(5678, {
+@WebSocketGateway({
   namespace: 'ws',
   transports: ['websocket'],
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'https://stratyix.com',
+      'https://www.stratyix.com',
+      'https://api.stratyix.com',
+    ],
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -41,7 +47,7 @@ export class WebsocketGateway
   ) {}
 
   afterInit(server: Server) {
-    this.logger.log('Websocket Gateway Initialized on port 5678');
+    this.logger.log('Websocket Gateway Initialized on main app server');
     // Subscribe to Redis events and broadcast to connected clients
     this.setupRedisSubscriptions();
   }
@@ -62,7 +68,7 @@ export class WebsocketGateway
     });
 
     this.logger.log(
-      `❌ Client disconnected: ${client.id}${userId ? ` (user: ${userId})` : ''}`,
+      `❌ Client disconnected: ${client.id}${userId ? ` (user: ${userId})` : ' (not subscribed)'}`,
     );
 
     // Remove client from all user subscriptions
@@ -104,6 +110,9 @@ export class WebsocketGateway
     const totalSockets = userSockets?.size || 0;
     this.logger.log(
       `📡 Client ${client.id} subscribed to backtest updates for user ${userId} (${totalSockets} total sockets)`,
+    );
+    this.logger.debug(
+      `Active user subscriptions: ${JSON.stringify(Array.from(this.userSockets.keys()))}`,
     );
     client.emit('backtest:subscribed', {
       userId,
@@ -232,8 +241,8 @@ export class WebsocketGateway
     const sockets = this.userSockets.get(userId);
 
     if (!sockets || sockets.size === 0) {
-      this.logger.debug(
-        `No connected clients for user ${userId} - backtest will continue in background`,
+      this.logger.warn(
+        `⚠️  No connected clients for user ${userId} - backtest will continue in background. Active users: ${JSON.stringify(Array.from(this.userSockets.keys()))}`,
       );
       return;
     }
