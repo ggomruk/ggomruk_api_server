@@ -2,6 +2,8 @@ import { Module, forwardRef } from '@nestjs/common';
 import { WebsocketGateway } from './websocketGateway';
 import { RedisModule } from 'src/domain/redis/redis.module';
 import { BacktestModule } from '../algo/backtest/backtest.module';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 
 /**
  * 🔌 WebsocketModule - Real-time communication via Socket.IO
@@ -21,9 +23,15 @@ import { BacktestModule } from '../algo/backtest/backtest.module';
  * @dependencies
  * - RedisModule: Required for BacktestPubSubService (Redis Pub/Sub)
  * - BacktestModule: Required for updating backtest results in MongoDB
+ * - JwtModule: Required for WebSocket authentication
  */
 @Module({
-  imports: [RedisModule, forwardRef(() => BacktestModule)],
+  imports: [
+    RedisModule,
+    forwardRef(() => BacktestModule),
+    JwtModule.register({}),
+    ConfigModule,
+  ],
   providers: [WebsocketGateway],
   exports: [WebsocketGateway],
 })

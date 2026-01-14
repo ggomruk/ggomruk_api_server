@@ -3,7 +3,7 @@ import { AuthModule } from './domain/auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import envValidation from './config/config.validation';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import * as dotenv from 'dotenv';
 import { WebsocketModule } from './domain/websocket/websocket.module';
 import { RedisModule } from './domain/redis/redis.module';
@@ -83,6 +83,10 @@ const logger = new Logger('App Module');
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

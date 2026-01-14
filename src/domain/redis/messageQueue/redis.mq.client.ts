@@ -31,17 +31,17 @@ export default class RedisMessageQueueClient {
     const maxRetry = 3;
     const delay = 5000;
     while (retry < maxRetry) {
+      retry++; // Increment at start of loop iteration
       try {
-        this.redisClient.publish(channel, message);
+        await this.redisClient.publish(channel, message);
         this.logger.log(`Published message: ${message} to channel: ${channel}`);
         return;
       } catch (error) {
-        this.logger.warn(`Retry ${retry} failed: ${error.message}`);
-        if (retry === maxRetry) {
+        this.logger.warn(`Retry ${retry}/${maxRetry} failed: ${error.message}`);
+        if (retry >= maxRetry) {
           throw new Error('Max retry limit reached');
         }
         await new Promise((resolve) => setTimeout(resolve, delay));
-        retry++;
       }
     }
   }

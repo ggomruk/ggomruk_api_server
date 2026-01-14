@@ -225,7 +225,14 @@ export class BacktestService {
   async getBacktestResult(backtestId: string, userId: string) {
     const backtest = await this.getBacktestById(backtestId);
     if (!backtest) return null;
-    // In a real app, check if backtest belongs to userId
+
+    // Verify backtest belongs to the requesting user
+    if (backtest.userId && backtest.userId !== userId) {
+      this.logger.warn(
+        `User ${userId} attempted to access backtest ${backtestId} owned by ${backtest.userId}`,
+      );
+      return null; // Return null instead of throwing to avoid leaking info about existence
+    }
 
     // If result is missing, return the whole document so we can debug
     if (!backtest.result) {
@@ -240,26 +247,27 @@ export class BacktestService {
     // Attempt to fetch detailed result from backtestResults collection
     if (backtest.result && backtest.result.resultId) {
       try {
-        const detailedResult = await this.getBacktestDetailedResult(backtest.result.resultId);
+        const detailedResult = await this.getBacktestDetailedResult(
+          backtest.result.resultId,
+        );
         if (detailedResult) {
           // Check if it's a raw Mongoose doc or object
-          const backtestObj = backtest.toObject ? backtest.toObject() : backtest;
-          
-          // Merge logic:
-          // Keep the 'summary' and 'status' from the main doc's result
-          // Merge in the heavy 'result' data from the detailed doc
-          // Note: detailedResult.result contains the performance/strategy data
+          const backtestObj = backtest.toObject
+            ? backtest.toObject()
+            : backtest;
+
           return {
             ...backtestObj,
             result: {
               ...backtestObj.result,
               ...detailedResult.result, // Merge remote result fields (performance, etc)
-              // Ensure we don't prefer 'result' properties if they conflict with summary (tho they shouldn't)
-            }
+            },
           };
         }
       } catch (err) {
-        this.logger.warn(`Could not fetch detailed result for ${backtestId}: ${err.message}`);
+        this.logger.warn(
+          `Could not fetch detailed result for ${backtestId}: ${err.message}`,
+        );
       }
     }
 

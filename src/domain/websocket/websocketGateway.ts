@@ -12,6 +12,8 @@ import {
 import { Server, Socket } from 'socket.io';
 import { BacktestPubSubService } from 'src/domain/redis/messageQueue/backtest-pubsub.service';
 import { BacktestService } from 'src/domain/algo/backtest/backtest.service';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 // Gateway for Websocket to connect between client
 @WebSocketGateway({
@@ -40,10 +42,15 @@ export class WebsocketGateway
   // Map to track user subscriptions: userId -> Set of socket IDs
   private userSockets: Map<string, Set<string>> = new Map();
 
+  // Map to track authenticated socket -> userId (for security)
+  private authenticatedSockets: Map<string, string> = new Map();
+
   constructor(
     private backtestPubSub: BacktestPubSubService,
     @Inject(forwardRef(() => BacktestService))
     private backtestService: BacktestService,
+    private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   afterInit(server: Server) {
@@ -56,9 +63,35 @@ export class WebsocketGateway
     this.logger.log(
       `✅ Client connected: ${client.id} from ${client.handshake.address}`,
     );
+
+    // Try to authenticate using JWT from handshake
+    const token =
+      client.handshake.auth?.token ||
+      client.handshake.headers?.authorization?.replace('Bearer ', '');
+
+    if (token) {
+      try {
+        const jwtSecret =
+          this.configService.get('auth.jwtAccessSecret') ||
+          process.env.JWT_SECRET;
+        const payload = this.jwtService.verify(token, { secret: jwtSecret });
+        const authenticatedUserId = payload.sub;
+        this.authenticatedSockets.set(client.id, authenticatedUserId);
+        this.logger.log(
+          `🔐 Client ${client.id} authenticated as user ${authenticatedUserId}`,
+        );
+      } catch (error) {
+        this.logger.warn(
+          `🔓 Client ${client.id} has invalid/expired token - will require manual subscription`,
+        );
+      }
+    }
   }
 
   handleDisconnect(client: Socket) {
+    // Clean up authenticated socket mapping
+    this.authenticatedSockets.delete(client.id);
+
     // Find which user this socket belonged to
     let userId: string | null = null;
     this.userSockets.forEach((sockets, uid) => {
@@ -94,6 +127,18 @@ export class WebsocketGateway
     if (!userId) {
       this.logger.warn(`Client ${client.id} tried to subscribe without userId`);
       client.emit('error', { message: 'userId is required' });
+      return;
+    }
+
+    // Security check: Verify the client is authenticated as this user
+    const authenticatedUserId = this.authenticatedSockets.get(client.id);
+    if (authenticatedUserId && authenticatedUserId !== userId) {
+      this.logger.warn(
+        `🚨 Security: Client ${client.id} authenticated as ${authenticatedUserId} tried to subscribe as ${userId}`,
+      );
+      client.emit('error', {
+        message: "Not authorized to subscribe to this user's updates",
+      });
       return;
     }
 

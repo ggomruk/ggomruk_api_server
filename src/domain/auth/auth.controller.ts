@@ -27,13 +27,17 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { Public } from './decorators/public.decorator';
 import { GeneralResponse } from 'src/common/dto/general-response.dto';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService,
+  ) {}
 
   @Public()
   @Post('login')
@@ -85,8 +89,6 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Logged out successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async logout(@Request() req) {
-    // JWT is stateless, so we just return success
-    // Client should remove the token from storage
     this.logger.log(`User logged out: ${req.user.username}`);
     return GeneralResponse.success(null, 'Logged out successfully');
   }
@@ -105,14 +107,57 @@ export class AuthController {
     try {
       const result = await this.authService.googleLogin(req);
 
-      // Redirect to frontend with token
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      res.redirect(`${frontendUrl}/auth/callback?token=${result.access_token}`);
+      // Use ConfigService instead of process.env directly
+      const frontendUrl =
+        this.configService.get<string>('app.frontendUrl') ||
+        'http://localhost:3000';
+
+      // Set token in httpOnly cookie for security (better than URL)
+      res.cookie('auth_token', result.access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 15 * 60 * 1000, // 15 minutes
+      });
+
+      res.redirect(`${frontendUrl}/auth/callback`);
     } catch (error) {
       this.logger.error(`Google OAuth error: ${error.message}`);
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      res.redirect(`${frontendUrl}/auth/error?message=${error.message}`);
+      const frontendUrl =
+        this.configService.get<string>('app.frontendUrl') ||
+        'http://localhost:3000';
+      res.redirect(`${frontendUrl}/auth/error?message=authentication_failed`);
     }
+  }
+
+  @Public()
+  @Get('exchange-token')
+  @ApiOperation({
+    summary: 'Exchange auth cookie for token',
+    description:
+      'Exchange the httpOnly auth_token cookie for a JWT token (used after OAuth redirect)',
+  })
+  @ApiResponse({ status: 200, description: 'Token exchanged successfully' })
+  @ApiResponse({ status: 401, description: 'No auth cookie found or invalid' })
+  async exchangeToken(@Req() req, @Res() res: Response) {
+    const authToken = req.cookies?.auth_token;
+
+    if (!authToken) {
+      throw new Error('No authentication token found in cookies');
+    }
+
+    // Clear the cookie after reading it (one-time use)
+    res.cookie('auth_token', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 0,
+    });
+
+    return GeneralResponse.success(
+      { access_token: authToken },
+      'Token exchanged successfully',
+    );
   }
 
   @Get('profile')
