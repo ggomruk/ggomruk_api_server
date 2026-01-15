@@ -1,11 +1,19 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
+export enum SubscriptionTier {
+  FREE = 'free',
+  PREMIUM = 'premium',
+}
+
 export interface IUser {
   username: string;
   email: string;
   displayName?: string;
   picture?: string;
+  subscription?: SubscriptionTier;
+  subscriptionExpiresAt?: Date;
+  telegramChatId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -23,6 +31,15 @@ export class User extends Document implements IUser {
 
   @Prop({ type: String })
   picture?: string;
+
+  @Prop({ enum: SubscriptionTier, default: SubscriptionTier.FREE })
+  subscription: SubscriptionTier;
+
+  @Prop({ type: Date })
+  subscriptionExpiresAt?: Date;
+
+  @Prop({ type: String })
+  telegramChatId?: string;
 
   @Prop({ type: Date, default: Date.now })
   createdAt: Date;

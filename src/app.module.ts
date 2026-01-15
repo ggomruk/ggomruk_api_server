@@ -11,6 +11,7 @@ import { OptimizerModule } from './domain/algo/optimizer/optimizer.module';
 import { BacktestModule } from './domain/algo/backtest/backtest.module';
 import { AlertsModule } from './domain/alerts/alerts.module';
 import { MarketModule } from './domain/market/market.module';
+import { OnchainModule } from './domain/onchain/onchain.module';
 import configuration from './config';
 import { LoggerMiddleware } from './common/middleware';
 import { APP_GUARD } from '@nestjs/core';
@@ -77,6 +78,7 @@ const logger = new Logger('App Module');
     OptimizerModule,
     AlertsModule,
     MarketModule,
+    OnchainModule,
   ],
   controllers: [HealthController],
   providers: [

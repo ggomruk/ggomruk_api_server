@@ -39,6 +39,7 @@ export class AuthService {
       username: user.username,
       sub: user._id,
       email: user.email,
+      subscription: user.subscription || 'free',
     };
 
     // Generate access token (uses JwtModule config)
@@ -63,6 +64,7 @@ export class AuthService {
         email: user.email,
         displayName: user.displayName,
         picture: user.picture,
+        subscription: user.subscription || 'free',
       },
     };
   }
