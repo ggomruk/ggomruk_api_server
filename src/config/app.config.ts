@@ -7,7 +7,6 @@ interface IAppConfig {
   apiPrefix: string;
   apiVersion: string;
   clientUrl: string;
-  analyticsUrl: string;
   corsOrigin: string[];
 }
 
@@ -20,7 +19,6 @@ export default registerAs<IAppConfig>('app', () => ({
 
   // URL
   clientUrl: process.env.CLIENT_URL,
-  analyticsUrl: process.env.ANALYTICS_SERVER_URL,
 
   // Security
   corsOrigin: process.env.CORS_ORIGIN?.split(','),

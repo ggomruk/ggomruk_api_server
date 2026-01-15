@@ -8,7 +8,6 @@ export default () =>
     API_PREFIX: Joi.string().default('/api'),
     API_VERSION: Joi.string(),
     CLIENT_URL: Joi.string().default('http://localhost:3000'),
-    ANALYTICS_SERVER_URL: Joi.string().default('http://localhost:3002'),
     CORS_ORIGIN: Joi.string().default('http://localhost:3000'),
     DB_HOST: Joi.string().required(),
     DB_PORT: Joi.number().default(27017),

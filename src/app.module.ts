@@ -57,13 +57,13 @@ const logger = new Logger('App Module');
     ThrottlerModule.forRoot([
       {
         name: 'short',
-        ttl: 1000,
-        limit: 3,
+        ttl: 1000, // 1 second
+        limit: 10,  // Increased from 3 to 10
       },
       {
         name: 'medium',
-        ttl: 10000,
-        limit: 20,
+        ttl: 10000, // 10 seconds
+        limit: 40,  // Increased from 20 to 40
       },
       {
         name: 'long',
